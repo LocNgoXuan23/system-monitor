@@ -32,6 +32,11 @@ function initCharts(coreCount) {
 }
 
 function applySnap(s) {
+  // Coalesce nil Go slices (JSON null) to [] so one missing collector can't abort the whole render.
+  s.cpu.cores = s.cpu.cores || [];
+  s.disk.devs = s.disk.devs || [];
+  s.fs = s.fs || [];
+  s.proc = s.proc || [];
   if (!cpuChart) initCharts(s.cpu.cores.length);
   // CPU
   $('cpuAgg').textContent = s.cpu.agg.toFixed(0) + '%';

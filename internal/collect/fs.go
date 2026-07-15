@@ -41,10 +41,13 @@ func ParseMounts(r io.Reader) []Mount {
 	return out
 }
 
-// ReadFS statfs's each real mount. Host mountpoints are resolved under hostRoot
-// (the host filesystem bind-mounted read-only into the container).
+// ReadFS statfs's each real mount. It reads PID 1's mount table (the host init's
+// mount namespace) rather than self/mounts: inside the container the self symlink
+// resolves to the container's own mount table (mountpoints already prefixed with
+// /host/root), which would double-prefix under hostRoot. Host mountpoints are then
+// resolved under hostRoot (the host filesystem bind-mounted read-only into the container).
 func ReadFS(hostProc, hostRoot string) []model.FSInfo {
-	f, err := os.Open(filepath.Join(hostProc, "mounts"))
+	f, err := os.Open(filepath.Join(hostProc, "1", "mounts"))
 	if err != nil {
 		return nil
 	}
