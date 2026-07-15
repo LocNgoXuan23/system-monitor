@@ -1,3 +1,67 @@
 <!doctype html>
-<html><head><meta charset="utf-8"><title>System Monitor</title></head>
-<body>loading…</body></html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>System Monitor</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+  <header id="topbar">
+    <span id="host">—</span>
+    <span id="uptime"></span>
+    <span id="load"></span>
+    <span id="clock"></span>
+    <span id="conn" class="off">offline</span>
+  </header>
+
+  <main id="grid">
+    <section class="tile" id="tile-cpu">
+      <h2>CPU <span class="val" id="cpuAgg">0%</span> <span class="sub" id="cpuTemp"></span></h2>
+      <canvas id="cpuChart"></canvas>
+      <div id="coreGrid" class="core-grid"></div>
+    </section>
+
+    <section class="tile" id="tile-gpu">
+      <h2>GPU <span class="sub" id="gpuName">—</span> <span class="val" id="gpuUtil">0%</span></h2>
+      <canvas id="gpuChart"></canvas>
+      <div class="kv" id="gpuStats"></div>
+    </section>
+
+    <section class="tile" id="tile-mem">
+      <h2>Memory &amp; Swap</h2>
+      <div class="bar"><div class="fill mem" id="memBar"></div></div>
+      <div class="kv" id="memText"></div>
+      <div class="bar"><div class="fill swap" id="swapBar"></div></div>
+      <div class="kv" id="swapText"></div>
+    </section>
+
+    <section class="tile" id="tile-net">
+      <h2>Network</h2>
+      <canvas id="netChart"></canvas>
+      <div class="kv" id="netText"></div>
+    </section>
+
+    <section class="tile" id="tile-disk">
+      <h2>Disk</h2>
+      <canvas id="diskChart"></canvas>
+      <div class="kv" id="diskText"></div>
+      <div id="diskUtil"></div>
+    </section>
+
+    <section class="tile" id="tile-fs">
+      <h2>Filesystems</h2>
+      <div id="fsList" class="list"></div>
+    </section>
+
+    <section class="tile" id="tile-proc">
+      <h2>Top processes</h2>
+      <div id="procList" class="list"></div>
+    </section>
+  </main>
+</div>
+<script src="chart.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
