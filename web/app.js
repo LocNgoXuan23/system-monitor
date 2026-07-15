@@ -58,6 +58,7 @@ function applySnap(s) {
     `<span class="n">${d.util.toFixed(0)}%</span></div>`).join('');
   // GPU
   if (s.gpu && s.gpu.length) {
+    $('tile-gpu').style.display = '';
     const g = s.gpu[0];
     $('gpuName').textContent = g.name;
     $('gpuUtil').textContent = g.util + '%';
