@@ -31,3 +31,12 @@ func TestLoadOverride(t *testing.T) {
 		t.Errorf("IntervalMS = %d, want 500", got)
 	}
 }
+
+func TestLoadNonPositiveIntervalFallsBackToDefault(t *testing.T) {
+	for _, v := range []string{"0", "-5", "abc"} {
+		t.Setenv("INTERVAL_MS", v)
+		if got := Load().IntervalMS; got != 1000 {
+			t.Errorf("INTERVAL_MS=%q: IntervalMS = %d, want default 1000", v, got)
+		}
+	}
+}

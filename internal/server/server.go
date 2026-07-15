@@ -8,7 +8,6 @@ import (
 
 	"system-monitor/internal/collect"
 	"system-monitor/internal/config"
-	"system-monitor/internal/model"
 	webassets "system-monitor/web"
 )
 
@@ -92,5 +91,3 @@ func (s *Server) handleSnapshot(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Write(last)
 }
-
-var _ = model.Snapshot{} // keep model import if unused elsewhere

@@ -18,12 +18,12 @@ type ProcSample struct {
 
 func ParseProcStat(pid int, content string) (ProcSample, bool) {
 	open := strings.IndexByte(content, '(')
-	close := strings.LastIndexByte(content, ')')
-	if open < 0 || close < 0 || close < open {
+	closeIdx := strings.LastIndexByte(content, ')')
+	if open < 0 || closeIdx < 0 || closeIdx < open {
 		return ProcSample{}, false
 	}
-	name := content[open+1 : close]
-	rest := strings.Fields(content[close+1:])
+	name := content[open+1 : closeIdx]
+	rest := strings.Fields(content[closeIdx+1:])
 	// rest[0]=state(field3); utime=field14->rest[11]; stime=field15->rest[12]; rss=field24->rest[21]
 	if len(rest) < 22 {
 		return ProcSample{}, false

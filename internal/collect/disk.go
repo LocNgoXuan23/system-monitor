@@ -31,8 +31,8 @@ func ParseDiskstats(r io.Reader, keep map[string]bool) map[string]DiskCounters {
 		}
 		sr, _ := strconv.ParseUint(f[5], 10, 64)
 		sw, _ := strconv.ParseUint(f[9], 10, 64)
-		io, _ := strconv.ParseUint(f[12], 10, 64)
-		out[name] = DiskCounters{SectorsRead: sr, SectorsWritten: sw, IOTicks: io}
+		ticks, _ := strconv.ParseUint(f[12], 10, 64)
+		out[name] = DiskCounters{SectorsRead: sr, SectorsWritten: sw, IOTicks: ticks}
 	}
 	return out
 }

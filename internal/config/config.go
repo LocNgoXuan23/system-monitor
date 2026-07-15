@@ -27,7 +27,7 @@ func env(key, def string) string {
 
 func envInt(key string, def int) int {
 	if v := os.Getenv(key); v != "" {
-		if n, err := strconv.Atoi(v); err == nil {
+		if n, err := strconv.Atoi(v); err == nil && n > 0 {
 			return n
 		}
 	}

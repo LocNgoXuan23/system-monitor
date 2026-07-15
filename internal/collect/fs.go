@@ -62,7 +62,6 @@ func ReadFS(hostProc, hostRoot string) []model.FSInfo {
 		}
 		bs := uint64(st.Bsize)
 		total := st.Blocks * bs
-		free := st.Bavail * bs
 		if total == 0 {
 			continue
 		}
@@ -71,7 +70,7 @@ func ReadFS(hostProc, hostRoot string) []model.FSInfo {
 			Mount: m.Mountpoint,
 			Used:  used,
 			Total: total,
-			Pct:   float64(total-free) / float64(total) * 100,
+			Pct:   float64(used) / float64(total) * 100,
 		})
 	}
 	return out

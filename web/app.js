@@ -97,8 +97,8 @@ function applySnap(s) {
 function seedHistory(history) {
   if (!history.length) return;
   const first = history[0];
-  if (!cpuChart) initCharts(first.cpu.cores.length);
-  cpuChart.seed(history.map(s => s.cpu.cores));
+  if (!cpuChart) initCharts((first.cpu.cores || []).length);
+  cpuChart.seed(history.map(s => s.cpu.cores || []));
   netChart.seed(history.map(s => [s.net.rx, s.net.tx]));
   diskChart.seed(history.map(s => [s.disk.read, s.disk.write]));
   gpuChart.seed(history.map(s => [s.gpu && s.gpu[0] ? s.gpu[0].util : 0]));
