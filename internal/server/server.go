@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/json"
+	"net"
 	"net/http"
 
 	"system-monitor/internal/engine"
@@ -27,7 +28,17 @@ func (s *Server) mux() *http.ServeMux {
 
 // Run binds and serves on the given TCP address, e.g. ":8080".
 func (s *Server) Run(addr string) error {
-	return http.ListenAndServe(addr, s.mux())
+	ln, err := net.Listen("tcp", addr)
+	if err != nil {
+		return err
+	}
+	return s.Serve(ln)
+}
+
+// Serve serves HTTP on an already-bound listener. The desktop head passes a
+// loopback listener bound to 127.0.0.1:0.
+func (s *Server) Serve(ln net.Listener) error {
+	return http.Serve(ln, s.mux())
 }
 
 func (s *Server) wrapTick(snap json.RawMessage) []byte {
