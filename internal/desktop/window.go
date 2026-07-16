@@ -1,3 +1,5 @@
+//go:build linux
+
 // Package desktop provides the native Linux (GTK3 + WebKitGTK) shell for the
 // system monitor desktop app. It is Linux-only and requires CGO.
 package desktop
@@ -86,4 +88,5 @@ func RunWindow(cfg WindowConfig) {
 	defer C.free(unsafe.Pointer(ctitle))
 	defer C.free(unsafe.Pointer(curl))
 	C.run_window(ctitle, curl, C.int(cfg.Width), C.int(cfg.Height), C.int(cfg.AutoCloseMS))
+	activeOnClose = nil
 }
