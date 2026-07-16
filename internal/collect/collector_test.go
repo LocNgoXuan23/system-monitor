@@ -80,8 +80,8 @@ func TestCollectorTickDeltas(t *testing.T) {
 	c := New(cfg, fakeGPU{})
 
 	t0 := time.Unix(1000, 0)
-	c.Tick(t0)                           // tick 1: primes previous sample
-	zero := c.Tick(t0.Add(time.Second))  // tick 2: inputs unchanged -> all deltas 0
+	c.Tick(t0)                          // tick 1: primes previous sample
+	zero := c.Tick(t0.Add(time.Second)) // tick 2: inputs unchanged -> all deltas 0
 
 	if zero.CPU.Agg != 0 || zero.Net.RX != 0 || zero.Net.TX != 0 {
 		t.Errorf("tick2 should have zero rates: cpu=%v net=%+v", zero.CPU.Agg, zero.Net)
