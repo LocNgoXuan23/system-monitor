@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	cfg := config.Load()
+	cfg := config.Load(config.WebDefaults())
 	gpu := collect.NewGPUReader()
 	defer gpu.Close()
 
