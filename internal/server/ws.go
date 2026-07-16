@@ -17,8 +17,8 @@ func (s *Server) handleWS(w http.ResponseWriter, r *http.Request) {
 	}
 	defer conn.Close()
 
-	ch := s.hub.Register()
-	defer s.hub.Unregister(ch)
+	sub, cancel := s.eng.Subscribe()
+	defer cancel()
 
 	if err := conn.WriteMessage(websocket.TextMessage, s.initMessage()); err != nil {
 		return
@@ -37,11 +37,11 @@ func (s *Server) handleWS(w http.ResponseWriter, r *http.Request) {
 
 	for {
 		select {
-		case msg, ok := <-ch:
+		case raw, ok := <-sub:
 			if !ok {
 				return
 			}
-			if err := conn.WriteMessage(websocket.TextMessage, msg); err != nil {
+			if err := conn.WriteMessage(websocket.TextMessage, s.wrapTick(raw)); err != nil {
 				return
 			}
 		case <-done:
