@@ -36,6 +36,8 @@ static void run_window(const char *title, const char *url, int width, int height
     GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title(GTK_WINDOW(window), title);
     gtk_window_set_default_size(GTK_WINDOW(window), width, height);
+    // Resolve the taskbar/window icon from the installed hicolor theme.
+    gtk_window_set_icon_name(GTK_WINDOW(window), "system-monitor");
     g_signal_connect(window, "delete-event", G_CALLBACK(on_delete), NULL);
     g_signal_connect(window, "destroy", G_CALLBACK(on_destroy), NULL);
 

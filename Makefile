@@ -30,10 +30,13 @@ dev:
 test:
 	$(GO) test ./...
 
-## install-desktop: install the binary and an app-menu launcher into ~/.local
+## install-desktop: install the binary, icon, and an app-menu launcher into ~/.local
 install-desktop: desktop
 	install -Dm755 $(DESKTOP_BIN) $(HOME)/.local/bin/system-monitor-desktop
+	install -Dm644 packaging/system-monitor.svg $(HOME)/.local/share/icons/hicolor/scalable/apps/system-monitor.svg
 	install -Dm644 packaging/system-monitor.desktop $(HOME)/.local/share/applications/system-monitor.desktop
+	-gtk-update-icon-cache -f -t $(HOME)/.local/share/icons/hicolor 2>/dev/null
+	-update-desktop-database $(HOME)/.local/share/applications 2>/dev/null
 	@echo "Installed. Launch from the app menu, or run: system-monitor-desktop"
 	@echo "Enable start-on-login with: system-monitor-desktop --install-autostart"
 

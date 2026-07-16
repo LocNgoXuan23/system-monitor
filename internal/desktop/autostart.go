@@ -24,6 +24,7 @@ func desktopEntry(execPath string) string {
 		"Name=System Monitor\n" +
 		"Comment=Live system resource monitor\n" +
 		"Exec=" + execPath + "\n" +
+		"Icon=system-monitor\n" +
 		"Terminal=false\n" +
 		"X-GNOME-Autostart-enabled=true\n"
 }

@@ -17,6 +17,9 @@ func TestDesktopEntryContainsExec(t *testing.T) {
 	if !strings.Contains(entry, "Exec=/home/u/.local/bin/system-monitor-desktop") {
 		t.Errorf("missing Exec line, got:\n%s", entry)
 	}
+	if !strings.Contains(entry, "Icon=system-monitor") {
+		t.Errorf("missing Icon line, got:\n%s", entry)
+	}
 }
 
 func TestInstallThenRemoveAutostart(t *testing.T) {

@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="System Monitor">
+  <defs>
+    <linearGradient id="tile" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2c2c44"/>
+      <stop offset="1" stop-color="#1a1a27"/>
+    </linearGradient>
+    <linearGradient id="area" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7aa2f7" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#7aa2f7" stop-opacity="0.02"/>
+    </linearGradient>
+    <linearGradient id="line" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#7dcfff"/>
+      <stop offset="1" stop-color="#7aa2f7"/>
+    </linearGradient>
+  </defs>
+
+  <!-- app tile -->
+  <rect x="16" y="16" width="224" height="224" rx="52" fill="url(#tile)"/>
+  <rect x="17.5" y="17.5" width="221" height="221" rx="50.5" fill="none" stroke="#3f3f5c" stroke-width="2"/>
+
+  <!-- chart gridlines -->
+  <g stroke="#ffffff" stroke-opacity="0.07" stroke-width="2">
+    <line x1="44" y1="112" x2="212" y2="112"/>
+    <line x1="44" y1="142" x2="212" y2="142"/>
+    <line x1="44" y1="172" x2="212" y2="172"/>
+  </g>
+
+  <!-- primary metric: filled area chart -->
+  <path d="M44,170 L72,150 L100,162 L128,116 L156,134 L184,92 L212,112 L212,196 L44,196 Z" fill="url(#area)"/>
+  <path d="M44,170 L72,150 L100,162 L128,116 L156,134 L184,92 L212,112" fill="none"
+        stroke="url(#line)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- secondary metric: thin line -->
+  <path d="M44,184 L72,178 L100,186 L128,172 L156,180 L184,168 L212,174" fill="none"
+        stroke="#f7768e" stroke-opacity="0.9" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- live sample point -->
+  <circle cx="212" cy="112" r="12" fill="#7aa2f7" fill-opacity="0.22"/>
+  <circle cx="212" cy="112" r="5.5" fill="#bcd0ff"/>
+</svg>

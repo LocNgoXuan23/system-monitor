@@ -3,5 +3,6 @@ Type=Application
 Name=System Monitor
 Comment=Live system resource monitor
 Exec=system-monitor-desktop
+Icon=system-monitor
 Terminal=false
 Categories=System;Monitor;
