@@ -17,10 +17,10 @@ func (s *Server) handleWS(w http.ResponseWriter, r *http.Request) {
 	}
 	defer conn.Close()
 
-	sub, cancel := s.eng.Subscribe()
+	history, sub, cancel := s.eng.SubscribeWithHistory()
 	defer cancel()
 
-	if err := conn.WriteMessage(websocket.TextMessage, s.initMessage()); err != nil {
+	if err := conn.WriteMessage(websocket.TextMessage, s.initMessage(history)); err != nil {
 		return
 	}
 

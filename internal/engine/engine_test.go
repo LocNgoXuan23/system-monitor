@@ -1,6 +1,7 @@
 package engine
 
 import (
+	"encoding/json"
 	"testing"
 	"time"
 
@@ -31,6 +32,28 @@ func TestCancelStopsDelivery(t *testing.T) {
 		t.Fatal("channel should be closed after cancel")
 	}
 	e.broadcast([]byte("x")) // must not panic with no subscribers
+}
+
+func TestSubscribeWithHistoryReturnsSnapshot(t *testing.T) {
+	e := New(config.Config{HistorySec: 60}, nil)
+	e.store(json.RawMessage(`{"n":1}`))
+	e.store(json.RawMessage(`{"n":2}`))
+
+	hist, ch, cancel := e.SubscribeWithHistory()
+	defer cancel()
+
+	if len(hist) != 2 || string(hist[1]) != `{"n":2}` {
+		t.Fatalf("history = %v, want the two stored snapshots", hist)
+	}
+	e.broadcast(json.RawMessage(`{"n":3}`))
+	select {
+	case got := <-ch:
+		if string(got) != `{"n":3}` {
+			t.Fatalf("live frame = %s, want {\"n\":3}", got)
+		}
+	default:
+		t.Fatal("expected the post-subscribe broadcast on the channel")
+	}
 }
 
 func TestHistoryCapsAtHistorySec(t *testing.T) {

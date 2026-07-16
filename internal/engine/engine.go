@@ -64,10 +64,14 @@ func (e *Engine) broadcast(raw json.RawMessage) {
 	}
 }
 
-// Subscribe registers a subscriber and returns its channel plus a cancel func.
-func (e *Engine) Subscribe() (<-chan json.RawMessage, func()) {
+// SubscribeWithHistory atomically captures the retained history and registers a
+// subscriber under one lock, so no tick can land between the two and be
+// delivered twice (once in history, once as the first live frame).
+func (e *Engine) SubscribeWithHistory() ([]json.RawMessage, <-chan json.RawMessage, func()) {
 	ch := make(chan json.RawMessage, 4)
 	e.mu.Lock()
+	hist := make([]json.RawMessage, len(e.ring))
+	copy(hist, e.ring)
 	e.subs[ch] = struct{}{}
 	e.mu.Unlock()
 	var once sync.Once
@@ -79,6 +83,12 @@ func (e *Engine) Subscribe() (<-chan json.RawMessage, func()) {
 			e.mu.Unlock()
 		})
 	}
+	return hist, ch, cancel
+}
+
+// Subscribe registers a subscriber and returns its channel plus a cancel func.
+func (e *Engine) Subscribe() (<-chan json.RawMessage, func()) {
+	_, ch, cancel := e.SubscribeWithHistory()
 	return ch, cancel
 }
 

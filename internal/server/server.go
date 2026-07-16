@@ -49,11 +49,11 @@ func (s *Server) wrapTick(snap json.RawMessage) []byte {
 	return b
 }
 
-func (s *Server) initMessage() []byte {
+func (s *Server) initMessage(history []json.RawMessage) []byte {
 	b, _ := json.Marshal(struct {
 		Type    string            `json:"type"`
 		History []json.RawMessage `json:"history"`
-	}{"init", s.eng.History()})
+	}{"init", history})
 	return b
 }
 
