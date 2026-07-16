@@ -23,6 +23,21 @@ func TestParseCPUStat(t *testing.T) {
 	}
 }
 
+func TestParseCPUStatExcludesGuest(t *testing.T) {
+	// guest (col 9) and guest_nice (col 10) are already included in user/nice,
+	// so they must NOT be added to Total again.
+	in := "cpu  100 0 50 800 50 0 0 0 30 5\n"
+	agg, _, err := ParseCPUStat(strings.NewReader(in))
+	if err != nil {
+		t.Fatal(err)
+	}
+	// Total = user+nice+system+idle+iowait+irq+softirq+steal = 100+0+50+800+50 = 1000
+	// (guest=30, guest_nice=5 excluded); Idle = idle+iowait = 850.
+	if agg.Total != 1000 || agg.Idle != 850 {
+		t.Fatalf("agg = %+v, want {1000 850}", agg)
+	}
+}
+
 func TestCPUPercent(t *testing.T) {
 	prev := CPUTimes{Total: 1000, Idle: 850}
 	cur := CPUTimes{Total: 1100, Idle: 900} // dt=100, didle=50, busy=50 -> 50%

@@ -28,7 +28,10 @@ func ParseCPUStat(r io.Reader) (agg CPUTimes, cores []CPUTimes, err error) {
 			continue
 		}
 		var t CPUTimes
-		for i := 1; i < len(f); i++ {
+		// Sum only user..steal (cols 1-8). Columns 9-10 (guest, guest_nice) are
+		// already folded into user/nice by the kernel; adding them again would
+		// double-count guest time and inflate CPU%.
+		for i := 1; i < len(f) && i <= 8; i++ {
 			v, e := strconv.ParseUint(f[i], 10, 64)
 			if e != nil {
 				continue
