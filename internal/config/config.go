@@ -11,7 +11,7 @@ type Config struct {
 	IntervalMS     int
 	HistorySec     int
 	ProcTopN       int
-	ProcIntervalMS int
+	ProcIntervalMS int // reserved: optional slower cadence for process scans (not yet wired)
 	HostProc       string
 	HostSys        string
 	HostRoot       string
