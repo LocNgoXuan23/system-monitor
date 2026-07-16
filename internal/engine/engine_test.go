@@ -56,6 +56,34 @@ func TestSubscribeWithHistoryReturnsSnapshot(t *testing.T) {
 	}
 }
 
+func TestPublishDeliversEachTickExactlyOnce(t *testing.T) {
+	e := New(config.Config{HistorySec: 60}, nil)
+	e.publish(json.RawMessage(`{"n":1}`)) // before subscribe -> history only
+
+	hist, ch, cancel := e.SubscribeWithHistory()
+	defer cancel()
+
+	if len(hist) != 1 || string(hist[0]) != `{"n":1}` {
+		t.Fatalf("history = %v, want [{n:1}]", hist)
+	}
+	// n:1 was published before subscribing, so it must NOT also arrive live.
+	select {
+	case got := <-ch:
+		t.Fatalf("unexpected live frame %s; n:1 should only be in history", got)
+	default:
+	}
+
+	e.publish(json.RawMessage(`{"n":2}`)) // after subscribe -> live only, not in hist
+	select {
+	case got := <-ch:
+		if string(got) != `{"n":2}` {
+			t.Fatalf("live frame = %s, want {\"n\":2}", got)
+		}
+	default:
+		t.Fatal("expected n:2 as a live frame")
+	}
+}
+
 func TestHistoryCapsAtHistorySec(t *testing.T) {
 	e := New(config.Config{HistorySec: 3}, nil)
 	for _, s := range []string{"a", "b", "c", "d", "e"} {

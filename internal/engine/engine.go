@@ -38,24 +38,45 @@ func (e *Engine) loop() {
 		if err != nil {
 			continue
 		}
-		e.store(raw)
-		e.broadcast(raw)
+		e.publish(raw)
 	}
+}
+
+// publish stores a snapshot and fans it out to subscribers in one critical
+// section. Combined with SubscribeWithHistory (which snapshots history and
+// registers a subscriber under the same lock), each tick reaches a subscriber
+// exactly once: either in its history snapshot or as a live frame, never both
+// (a split store/broadcast would let a subscriber register between them and get
+// the tick twice) and never neither. The channel sends are non-blocking, so
+// holding the lock across them cannot stall on a slow subscriber.
+func (e *Engine) publish(raw json.RawMessage) {
+	e.mu.Lock()
+	defer e.mu.Unlock()
+	e.storeLocked(raw)
+	e.broadcastLocked(raw)
 }
 
 func (e *Engine) store(raw json.RawMessage) {
 	e.mu.Lock()
+	defer e.mu.Unlock()
+	e.storeLocked(raw)
+}
+
+func (e *Engine) storeLocked(raw json.RawMessage) {
 	e.last = raw
 	e.ring = append(e.ring, raw)
 	if len(e.ring) > e.cfg.HistorySec {
 		e.ring = e.ring[len(e.ring)-e.cfg.HistorySec:]
 	}
-	e.mu.Unlock()
 }
 
 func (e *Engine) broadcast(raw json.RawMessage) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
+	e.broadcastLocked(raw)
+}
+
+func (e *Engine) broadcastLocked(raw json.RawMessage) {
 	for ch := range e.subs {
 		select {
 		case ch <- raw:
