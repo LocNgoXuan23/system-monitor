@@ -26,7 +26,7 @@ func (s *Server) mux() *http.ServeMux {
 	return mux
 }
 
-// Run binds and serves on the given TCP address, e.g. ":8080".
+// Run binds and serves on the given TCP address, e.g. ":8090".
 func (s *Server) Run(addr string) error {
 	ln, err := net.Listen("tcp", addr)
 	if err != nil {

@@ -9,5 +9,5 @@ RUN CGO_ENABLED=1 GOOS=linux go build -ldflags="-s -w" -o /out/monitor ./cmd/web
 
 FROM gcr.io/distroless/base-debian12
 COPY --from=build /out/monitor /monitor
-EXPOSE 8080
+EXPOSE 8090
 ENTRYPOINT ["/monitor"]
