@@ -7,7 +7,11 @@ import (
 	"strings"
 )
 
-const pageSize = 4096
+// pageSize is the kernel page size; RSS in /proc/[pid]/stat is reported in
+// pages. Read it from the running kernel (same kernel for the container and
+// desktop heads) rather than hardcoding 4096, which is wrong on 16K/64K-page
+// architectures.
+var pageSize = uint64(os.Getpagesize())
 
 type ProcSample struct {
 	PID     int

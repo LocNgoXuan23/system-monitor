@@ -26,7 +26,7 @@ func (s *Server) mux() *http.ServeMux {
 	return mux
 }
 
-// Run binds and serves on the given TCP address, e.g. ":8080".
+// Run binds and serves on the given TCP address, e.g. ":8090".
 func (s *Server) Run(addr string) error {
 	ln, err := net.Listen("tcp", addr)
 	if err != nil {
@@ -49,11 +49,11 @@ func (s *Server) wrapTick(snap json.RawMessage) []byte {
 	return b
 }
 
-func (s *Server) initMessage() []byte {
+func (s *Server) initMessage(history []json.RawMessage) []byte {
 	b, _ := json.Marshal(struct {
 		Type    string            `json:"type"`
 		History []json.RawMessage `json:"history"`
-	}{"init", s.eng.History()})
+	}{"init", history})
 	return b
 }
 

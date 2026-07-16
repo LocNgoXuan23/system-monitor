@@ -9,7 +9,11 @@ class Chart {
     this.fill = fill;
     this.data = series.map(() => []);// per-series array of values
     this._resize();
-    window.addEventListener('resize', () => this._resize());
+    if (typeof ResizeObserver !== 'undefined') {
+      new ResizeObserver(() => this._resize()).observe(canvas);
+    } else {
+      window.addEventListener('resize', () => this._resize());
+    }
   }
   _resize() {
     const r = this.c.getBoundingClientRect();

@@ -11,7 +11,7 @@ type Config struct {
 	IntervalMS     int
 	HistorySec     int
 	ProcTopN       int
-	ProcIntervalMS int
+	ProcIntervalMS int // reserved: optional slower cadence for process scans (not yet wired)
 	HostProc       string
 	HostSys        string
 	HostRoot       string
@@ -46,7 +46,7 @@ type Defaults struct {
 // WebDefaults are the defaults for the Docker web head (host paths bind-mounted
 // under /host).
 func WebDefaults() Defaults {
-	return Defaults{Port: "8080", HostProc: "/host/proc", HostSys: "/host/sys", HostRoot: "/host/root"}
+	return Defaults{Port: "8090", HostProc: "/host/proc", HostSys: "/host/sys", HostRoot: "/host/root"}
 }
 
 // DesktopDefaults are the defaults for the native desktop head, which reads the

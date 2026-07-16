@@ -7,7 +7,7 @@ services:
     runtime: nvidia
     network_mode: host
     environment:
-      - PORT=${PORT:-8080}
+      - PORT=${PORT:-8090}
       - INTERVAL_MS=1000
       - HISTORY_SECONDS=60
       - PROC_TOP_N=8

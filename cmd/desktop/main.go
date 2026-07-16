@@ -44,7 +44,7 @@ func main() {
 		return
 	}
 
-	cfg := config.Load(config.DesktopDefaults())
+	cfg := config.Load(config.DesktopDefaults()) // Port unused: desktop binds 127.0.0.1:0 below
 	gpu := collect.NewGPUReader()
 	defer gpu.Close()
 

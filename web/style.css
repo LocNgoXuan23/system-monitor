@@ -54,7 +54,7 @@ canvas { width: 100%; flex: 1; min-height: 0; display: block; }
 .util-row .track { height: 8px; background: #2f2f45; border-radius: 4px; overflow: hidden; }
 .util-row .track > i { display: block; height: 100%; background: var(--util); }
 
-.list { overflow: hidden; display: flex; flex-direction: column; gap: 2px; }
+.list { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 2px; }
 .list .row { display: grid; grid-template-columns: 1fr auto auto; gap: 10px; font-size: 12px; }
 .list .row .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .list .row .n { color: var(--sub); font-variant-numeric: tabular-nums; }

@@ -10,8 +10,8 @@ func TestWebDefaults(t *testing.T) {
 		os.Unsetenv(k)
 	}
 	c := Load(WebDefaults())
-	if c.Port != "8080" {
-		t.Errorf("Port = %q, want 8080", c.Port)
+	if c.Port != "8090" {
+		t.Errorf("Port = %q, want 8090", c.Port)
 	}
 	if c.IntervalMS != 1000 {
 		t.Errorf("IntervalMS = %d, want 1000", c.IntervalMS)

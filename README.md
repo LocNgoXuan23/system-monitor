@@ -17,6 +17,12 @@ make web            # docker compose up -d --build; serves on the .env PORT (809
 
 Open `http://<host>:8090`.
 
+## Configuration
+
+Copy `.env.example` to `.env` and set `PORT` (defaults to **8090**; do not use
+8080 — it belongs to the filebrowser container). Docker Compose reads `.env`
+automatically. All other settings have safe defaults.
+
 ## Desktop app (native Linux)
 
 Requires `gtk+-3.0` and `webkit2gtk-4.1` (and CGO). Build and run:

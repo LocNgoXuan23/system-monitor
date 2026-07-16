@@ -1,5 +1,7 @@
 const $ = id => document.getElementById(id);
 const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const esc = s => String(s).replace(/[&<>"']/g, c =>
+  ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
 function fmtBytes(b) {
   const u = ['B', 'KiB', 'MiB', 'GiB', 'TiB']; let i = 0;
@@ -58,7 +60,7 @@ function applySnap(s) {
   diskChart.push([s.disk.read, s.disk.write]);
   $('diskText').innerHTML = `<b style="color:${css('--read')}">R ${fmtRate(s.disk.read)}</b> · <b style="color:${css('--write')}">W ${fmtRate(s.disk.write)}</b>`;
   $('diskUtil').innerHTML = s.disk.devs.map(d =>
-    `<div class="util-row"><span class="name" title="${d.model || ''}">${d.name}</span>` +
+    `<div class="util-row"><span class="name" title="${esc(d.model || '')}">${esc(d.name)}</span>` +
     `<span class="track"><i style="width:${d.util.toFixed(0)}%"></i></span>` +
     `<span class="n">${d.util.toFixed(0)}%</span></div>`).join('');
   // GPU
@@ -79,12 +81,12 @@ function applySnap(s) {
   }
   // FS
   $('fsList').innerHTML = s.fs.map(f =>
-    `<div class="row"><span class="name">${f.mount}</span>` +
+    `<div class="row"><span class="name">${esc(f.mount)}</span>` +
     `<span class="n">${fmtBytes(f.used)}/${fmtBytes(f.total)}</span>` +
     `<span class="n">${f.pct.toFixed(0)}%</span></div>`).join('');
   // Proc
   $('procList').innerHTML = s.proc.map(p =>
-    `<div class="row"><span class="name">${p.name}</span>` +
+    `<div class="row"><span class="name">${esc(p.name)}</span>` +
     `<span class="n">${p.cpu.toFixed(0)}%</span>` +
     `<span class="n">${fmtBytes(p.rss)}</span></div>`).join('');
   // Header
@@ -98,10 +100,10 @@ function seedHistory(history) {
   if (!history.length) return;
   const first = history[0];
   if (!cpuChart) initCharts((first.cpu.cores || []).length);
-  cpuChart.seed(history.map(s => s.cpu.cores || []));
-  netChart.seed(history.map(s => [s.net.rx, s.net.tx]));
-  diskChart.seed(history.map(s => [s.disk.read, s.disk.write]));
-  gpuChart.seed(history.map(s => [s.gpu && s.gpu[0] ? s.gpu[0].util : 0]));
+  cpuChart.seed(history.slice(0, -1).map(s => s.cpu.cores || []));
+  netChart.seed(history.slice(0, -1).map(s => [s.net.rx, s.net.tx]));
+  diskChart.seed(history.slice(0, -1).map(s => [s.disk.read, s.disk.write]));
+  gpuChart.seed(history.slice(0, -1).map(s => [s.gpu && s.gpu[0] ? s.gpu[0].util : 0]));
   applySnap(history[history.length - 1]);
 }
 
