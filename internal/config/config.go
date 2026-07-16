@@ -34,17 +34,39 @@ func envInt(key string, def int) int {
 	return def
 }
 
-func Load() Config {
+// Defaults holds the per-head default values that differ between the web and
+// desktop form factors. Environment variables still override these.
+type Defaults struct {
+	Port     string
+	HostProc string
+	HostSys  string
+	HostRoot string
+}
+
+// WebDefaults are the defaults for the Docker web head (host paths bind-mounted
+// under /host).
+func WebDefaults() Defaults {
+	return Defaults{Port: "8080", HostProc: "/host/proc", HostSys: "/host/sys", HostRoot: "/host/root"}
+}
+
+// DesktopDefaults are the defaults for the native desktop head, which reads the
+// real host filesystem directly. HostRoot is "" so filesystem mount paths are
+// used as-is (filepath.Join("", "/x") == "/x").
+func DesktopDefaults() Defaults {
+	return Defaults{Port: "0", HostProc: "/proc", HostSys: "/sys", HostRoot: ""}
+}
+
+func Load(d Defaults) Config {
 	interval := envInt("INTERVAL_MS", 1000)
 	return Config{
-		Port:           env("PORT", "8080"),
+		Port:           env("PORT", d.Port),
 		IntervalMS:     interval,
 		HistorySec:     envInt("HISTORY_SECONDS", 60),
 		ProcTopN:       envInt("PROC_TOP_N", 8),
 		ProcIntervalMS: envInt("PROC_INTERVAL_MS", interval),
-		HostProc:       env("HOST_PROC", "/host/proc"),
-		HostSys:        env("HOST_SYS", "/host/sys"),
-		HostRoot:       env("HOST_ROOT", "/host/root"),
+		HostProc:       env("HOST_PROC", d.HostProc),
+		HostSys:        env("HOST_SYS", d.HostSys),
+		HostRoot:       env("HOST_ROOT", d.HostRoot),
 		DiskExclude:    strings.Split(env("DISK_EXCLUDE", "loop,ram,zram,dm-"), ","),
 	}
 }
