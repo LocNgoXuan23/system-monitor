@@ -6,3 +6,7 @@ Exec=system-monitor-desktop
 Icon=system-monitor
 Terminal=false
 Categories=System;Monitor;
+# The binary is system-monitor-desktop, so GTK sets WM_CLASS to that, which does
+# not match this file's name. Without this, the shell cannot associate a running
+# window with this entry and shows a fallback icon in the dock.
+StartupWMClass=system-monitor-desktop
