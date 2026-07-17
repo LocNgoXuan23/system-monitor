@@ -25,9 +25,11 @@ func ParseOSRelease(r io.Reader) string {
 // ReadOSName reads the host distro's PRETTY_NAME. hostRoot is the prefix under
 // which the host filesystem is visible ("" natively, "/host/root" in the
 // container) so the web app reports the host's distro, not the image's.
+// The suffix must be absolute (leading /) so filepath.Join behaves correctly
+// even when hostRoot is empty: filepath.Join("", "/etc/os-release") == "/etc/os-release".
 // Returns "" when unavailable; the UI then omits the field.
 func ReadOSName(hostRoot string) string {
-	f, err := os.Open(filepath.Join(hostRoot, "etc", "os-release"))
+	f, err := os.Open(filepath.Join(hostRoot, "/etc/os-release"))
 	if err != nil {
 		return ""
 	}

@@ -35,6 +35,24 @@ func TestReadOSNameMissingFile(t *testing.T) {
 	}
 }
 
+func TestReadOSNameEmptyPrefix(t *testing.T) {
+	// Regression test for empty hostRoot prefix (desktop form factor).
+	// The bug was filepath.Join("", "etc", "os-release") produced relative path "etc/os-release".
+	// Fixed by using absolute suffix: filepath.Join("", "/etc/os-release") == "/etc/os-release".
+	f, err := os.Open("/etc/os-release")
+	if err != nil {
+		t.Skip("no /etc/os-release on this host")
+	}
+	defer f.Close()
+	expected := ParseOSRelease(f)
+	if expected == "" {
+		t.Skip("PRETTY_NAME not found in /etc/os-release")
+	}
+	if got := ReadOSName(""); got != expected {
+		t.Errorf("got %q, want %q", got, expected)
+	}
+}
+
 func TestReadKernel(t *testing.T) {
 	dir := t.TempDir()
 	if err := os.MkdirAll(filepath.Join(dir, "sys", "kernel"), 0o755); err != nil {
