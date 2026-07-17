@@ -17,6 +17,12 @@ type WindowSize struct {
 const (
 	defaultWidth  = 1440
 	defaultHeight = 900
+
+	// MinWidth/MinHeight are the smallest window the dashboard lays out
+	// correctly in. Below this the charts collapse to unreadable slivers and
+	// the 32-core grid disappears, so GTK is told to refuse smaller sizes.
+	MinWidth  = 1100
+	MinHeight = 780
 )
 
 func configDir() (string, error) {
@@ -41,6 +47,12 @@ func LoadWindowSize() WindowSize {
 	var ws WindowSize
 	if json.Unmarshal(b, &ws) != nil || ws.Width <= 0 || ws.Height <= 0 {
 		return def
+	}
+	if ws.Width < MinWidth {
+		ws.Width = MinWidth
+	}
+	if ws.Height < MinHeight {
+		ws.Height = MinHeight
 	}
 	return ws
 }

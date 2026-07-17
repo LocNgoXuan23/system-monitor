@@ -31,11 +31,18 @@ static gboolean auto_close(gpointer window) {
     return G_SOURCE_REMOVE;
 }
 
-static void run_window(const char *title, const char *url, int width, int height, int autoclose_ms) {
+static void run_window(const char *title, const char *url, int width, int height,
+                       int min_width, int min_height, int autoclose_ms) {
     gtk_init(0, NULL);
     GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title(GTK_WINDOW(window), title);
     gtk_window_set_default_size(GTK_WINDOW(window), width, height);
+    if (min_width > 0 && min_height > 0) {
+        GdkGeometry hints;
+        hints.min_width = min_width;
+        hints.min_height = min_height;
+        gtk_window_set_geometry_hints(GTK_WINDOW(window), NULL, &hints, GDK_HINT_MIN_SIZE);
+    }
     // Resolve the taskbar/window icon from the installed hicolor theme.
     gtk_window_set_icon_name(GTK_WINDOW(window), "system-monitor");
     g_signal_connect(window, "delete-event", G_CALLBACK(on_delete), NULL);
@@ -65,6 +72,8 @@ type WindowConfig struct {
 	URL         string
 	Width       int
 	Height      int
+	MinWidth    int            // 0 = no minimum-size hint
+	MinHeight   int            // 0 = no minimum-size hint
 	AutoCloseMS int            // >0 auto-closes after N ms (testing only)
 	OnClose     func(w, h int) // called with the final window size as it closes
 }
@@ -89,6 +98,7 @@ func RunWindow(cfg WindowConfig) {
 	curl := C.CString(cfg.URL)
 	defer C.free(unsafe.Pointer(ctitle))
 	defer C.free(unsafe.Pointer(curl))
-	C.run_window(ctitle, curl, C.int(cfg.Width), C.int(cfg.Height), C.int(cfg.AutoCloseMS))
+	C.run_window(ctitle, curl, C.int(cfg.Width), C.int(cfg.Height),
+		C.int(cfg.MinWidth), C.int(cfg.MinHeight), C.int(cfg.AutoCloseMS))
 	activeOnClose = nil
 }
