@@ -19,8 +19,8 @@ type Collector struct {
 
 	// Immutable for the process lifetime, so they are read once in New()
 	// rather than on every tick.
-	osName  string
-	kernel  string
+	osName   string
+	kernel   string
 	cpuModel string
 
 	prevCPUAgg   CPUTimes
