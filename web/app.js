@@ -77,6 +77,9 @@ function applySnap(s) {
   if (hasGPU && s.gpu.length) renderGPU(s);
   renderNet(s);
   renderDisk(s);
+  renderProc(s);
+  renderFS(s);
+  autoFit();
   renderTopbar(s);
 }
 
@@ -116,4 +119,6 @@ function connect() {
   };
   ws.onerror = () => ws.close();
 }
+// Row counts are height-dependent, so refit when the window changes.
+window.addEventListener('resize', autoFit);
 connect();

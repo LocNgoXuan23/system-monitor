@@ -89,3 +89,44 @@ function renderDisk(s) {
     `<span class="bar"><i class="${d.util > 75 ? 'hot' : ''}" style="width:${d.util.toFixed(0)}%"></i></span>` +
     `<span class="pc">${d.util.toFixed(0)}%</span></div>`).join('');
 }
+
+function renderProc(s) {
+  // Already sorted by CPU descending server-side. No per-process icons: they
+  // carried no information the name doesn't.
+  $('procBody').innerHTML = s.proc.map(p =>
+    `<tr><td class="nm" title="${esc(p.name)}">${esc(p.name)}</td>` +
+    `<td class="n">${p.cpu.toFixed(0)}%</td>` +
+    `<td class="n">${fmtBytes(p.rss)}</td>` +
+    `<td class="n">${p.pid}</td></tr>`).join('');
+}
+
+function renderFS(s) {
+  // Sorted by % used descending — the full mount is the one worth seeing.
+  const fs = s.fs.slice().sort((a, b) => b.pct - a.pct);
+  $('fsBody').innerHTML = fs.map(f =>
+    `<tr><td class="nm" title="${esc(f.mount)}">${esc(f.mount)}</td>` +
+    `<td class="n">${fmtBytes(f.used)} / ${fmtBytes(f.total)}</td>` +
+    `<td class="n"><span class="fsbar"><i class="${f.pct > 90 ? 'hot' : ''}" style="width:${f.pct.toFixed(0)}%"></i></span></td>` +
+    `<td class="n">${f.pct.toFixed(0)}%</td></tr>`).join('');
+}
+
+// Trim rows from the bottom until each table fits its wrapper, so the right
+// column adapts to the window height without ever scrolling. The loop only
+// ever deletes, so it terminates. Both lists are pre-sorted, so the rows that
+// survive are the ones worth keeping.
+function autoFit() {
+  document.querySelectorAll('[data-fit]').forEach(wrap => {
+    const tb = wrap.querySelector('tbody');
+    if (!tb) return;
+    const total = tb.rows.length;
+    while (tb.rows.length > 1 && wrap.scrollHeight > wrap.clientHeight) {
+      tb.deleteRow(tb.rows.length - 1);
+    }
+    if (wrap.dataset.fit === 'fs') {
+      const hidden = total - tb.rows.length;
+      // Never truncate silently. #fsNote reserves its height even when empty,
+      // so writing into it cannot re-overflow the table just trimmed to fit.
+      $('fsNote').textContent = hidden > 0 ? `+${hidden} mount khác` : '';
+    }
+  });
+}
