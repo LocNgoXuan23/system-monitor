@@ -41,7 +41,14 @@
             </div>
             <div class="xax"><span>60s</span><span>30s</span><span>now</span></div>
           </div>
-          <div class="stats" id="cpuStats"></div>
+          <div class="stats" id="cpuStats">
+            <div class="r"><span class="k"><i class="dot hole"></i>Average</span><span class="v" id="cpuAvg">—</span></div>
+            <div class="r"><span class="k"><i class="dot hole"></i>Max core</span><span class="v" id="cpuMax">—</span></div>
+            <div class="r" id="cpuTempRow"><span class="k"><i class="dot hole"></i>Temperature</span><span class="v" id="cpuTemp">—</span></div>
+            <div class="sep"></div>
+            <div class="cap">Per-core</div>
+            <div class="cores" id="coreGrid"></div>
+          </div>
         </div>
       </section>
 

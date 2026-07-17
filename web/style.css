@@ -65,7 +65,7 @@ body {
 #card-fs { flex: 1; }
 
 /* ---- card header ---- */
-.ch { display: flex; align-items: center; gap: 9px; margin-bottom: 7px; flex: none; }
+.ch { display: flex; align-items: center; gap: 9px; margin-bottom: 5px; flex: none; }
 .cico { width: 26px; height: 26px; border-radius: 7px; display: grid; place-items: center; font-size: 13px; flex: none; }
 /* Card icon tints — a pale wash of that card's own series colour. These washes
    and the #conn badge's tints are the only literal colours below :root; every
@@ -100,7 +100,10 @@ body {
 .stats { width: var(--statsw); flex: none; display: flex; flex-direction: column; min-height: 0; }
 
 /* ---- stat rows ---- */
-.r { display: flex; align-items: baseline; gap: 8px; padding: 1.5px 0; font-size: 11.5px; flex: none; }
+/* line-height:1 keeps rows compact — at the 1100x780 floor five equally-tall
+   cards leave little headroom, and the CPU card also needs room for its
+   per-core grid below these rows. */
+.r { display: flex; align-items: baseline; gap: 8px; padding: 1px 0; font-size: 11.5px; line-height: 1; flex: none; }
 .r .k { color: var(--sub); display: flex; align-items: center; gap: 6px; }
 .r .v { margin-left: auto; font-variant-numeric: tabular-nums; font-weight: 600; }
 .r.dim .k, .r.dim .v { color: var(--sub); font-weight: 400; font-size: 10px; }
@@ -117,10 +120,10 @@ body {
 .sw-cyan { background: var(--cyan); }
 .sw-purple { background: var(--purple); }
 .sw-track { background: var(--track); }
-.sep { border-top: 1px solid var(--line); margin: 5px 0; flex: none; }
+.sep { border-top: 1px solid var(--line); margin: 3px 0; flex: none; }
 .cap {
   font-size: 8.5px; letter-spacing: .05em; color: var(--sub); font-weight: 600;
-  text-transform: uppercase; margin-bottom: 4px; flex: none;
+  text-transform: uppercase; line-height: 1.2; margin-bottom: 2px; flex: none;
 }
 
 /* ---- per-core grid ---- */

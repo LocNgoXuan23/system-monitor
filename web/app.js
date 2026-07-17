@@ -72,6 +72,7 @@ function applySnap(s) {
   s.fs = s.fs || [];
   s.proc = s.proc || [];
   if (!cpuChart) initCharts(s);
+  renderCPU(s);
   renderTopbar(s);
 }
 
@@ -81,6 +82,8 @@ function seedHistory(history) {
   first.cpu.cores = first.cpu.cores || [];
   first.gpu = first.gpu || [];
   if (!cpuChart) initCharts(first);
+  const past = history.slice(0, -1);
+  cpuChart.seed(past.map(x => x.cpu.cores || []));
   applySnap(history[history.length - 1]);
 }
 
