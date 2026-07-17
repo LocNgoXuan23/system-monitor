@@ -58,7 +58,7 @@ body {
 .col { display: flex; flex-direction: column; gap: 8px; min-height: 0; }
 .card {
   background: var(--card); border: 1px solid var(--line); border-radius: 10px;
-  padding: 10px 13px; display: flex; flex-direction: column; min-height: 0; overflow: hidden;
+  padding: 8px 13px; display: flex; flex-direction: column; min-height: 0; overflow: hidden;
 }
 #colLeft > .card { flex: 1; }
 #card-proc { flex: 3; }
@@ -103,7 +103,7 @@ body {
 /* line-height:1 keeps rows compact — at the 1100x780 floor five equally-tall
    cards leave little headroom, and the CPU card also needs room for its
    per-core grid below these rows. */
-.r { display: flex; align-items: baseline; gap: 8px; padding: 1px 0; font-size: 11.5px; line-height: 1; flex: none; }
+.r { display: flex; align-items: baseline; gap: 8px; padding: 0; font-size: 11.5px; line-height: 1; flex: none; }
 .r .k { color: var(--sub); display: flex; align-items: center; gap: 6px; }
 .r .v { margin-left: auto; font-variant-numeric: tabular-nums; font-weight: 600; }
 .r.dim .k, .r.dim .v { color: var(--sub); font-weight: 400; font-size: 10px; }
@@ -120,10 +120,10 @@ body {
 .sw-cyan { background: var(--cyan); }
 .sw-purple { background: var(--purple); }
 .sw-track { background: var(--track); }
-.sep { border-top: 1px solid var(--line); margin: 3px 0; flex: none; }
+.sep { border-top: 1px solid var(--line); margin: 2px 0; flex: none; }
 .cap {
   font-size: 8.5px; letter-spacing: .05em; color: var(--sub); font-weight: 600;
-  text-transform: uppercase; line-height: 1.2; margin-bottom: 2px; flex: none;
+  text-transform: uppercase; line-height: 1.2; margin-bottom: 1px; flex: none;
 }
 
 /* ---- per-core grid ---- */
@@ -135,7 +135,7 @@ body {
 #devList { display: flex; flex-direction: column; gap: 2px; overflow: hidden; }
 .dev {
   display: grid; grid-template-columns: 66px 1fr 30px; gap: 6px;
-  align-items: center; font-size: 10px; padding: 1px 0;
+  align-items: center; font-size: 10px; padding: 0;
 }
 .dev .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .dev .bar { height: 5px; background: var(--track); border-radius: 3px; overflow: hidden; }
@@ -146,7 +146,7 @@ body {
 /* ---- stacked bar ---- */
 .stack { height: 8px; border-radius: 4px; overflow: hidden; display: flex; background: var(--track); flex: none; }
 .stack i { display: block; height: 100%; }
-.skey { display: flex; gap: 10px; font-size: 9px; color: var(--sub); margin-top: 4px; flex: none; }
+.skey { display: flex; gap: 10px; font-size: 9px; line-height: 1.15; color: var(--sub); margin-top: 3px; flex: none; }
 .skey b { display: inline-block; width: 6px; height: 6px; border-radius: 2px; margin-right: 3px; }
 
 /* ---- right-column tables ---- */
@@ -157,7 +157,11 @@ body {
   font-weight: 600; text-align: left; padding: 0 0 4px; border-bottom: 1px solid var(--line);
 }
 .tbl td { padding: 3px 0; border-bottom: 1px solid var(--track); }
-.tbl .n { text-align: right; font-variant-numeric: tabular-nums; }
+/* Numbers never wrap — a wrapped "365 MiB" would make its row taller than its
+   neighbours; the name/mount column ellipsizes to absorb the squeeze instead.
+   The left padding keeps adjacent right-aligned columns (and their headers)
+   from touching. */
+.tbl .n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; padding-left: 12px; }
 .tbl td.nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 0; width: 100%; }
 /* Always present, even when empty, so appending the note cannot re-overflow
    the table that autoFit() just trimmed to fit. */
