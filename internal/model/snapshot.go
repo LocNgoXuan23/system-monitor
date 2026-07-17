@@ -39,10 +39,11 @@ type MemInfo struct {
 }
 
 type NetInfo struct {
-	RX      uint64 `json:"rx"`
-	TX      uint64 `json:"tx"`
-	RXTotal uint64 `json:"rx_total"`
-	TXTotal uint64 `json:"tx_total"`
+	RX      uint64   `json:"rx"`
+	TX      uint64   `json:"tx"`
+	RXTotal uint64   `json:"rx_total"`
+	TXTotal uint64   `json:"tx_total"`
+	Ifaces  []string `json:"ifaces"` // physical interfaces being summed
 }
 
 type DiskDev struct {

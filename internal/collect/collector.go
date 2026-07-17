@@ -111,7 +111,7 @@ func (c *Collector) net(dt float64) model.NetInfo {
 	if err != nil {
 		return model.NetInfo{}
 	}
-	n := model.NetInfo{RXTotal: cur.RX, TXTotal: cur.TX}
+	n := model.NetInfo{RXTotal: cur.RX, TXTotal: cur.TX, Ifaces: cur.Ifaces}
 	if c.primed && dt > 0 {
 		n.RX = rate(c.prevNet.RX, cur.RX, dt)
 		n.TX = rate(c.prevNet.TX, cur.TX, dt)
