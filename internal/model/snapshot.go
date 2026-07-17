@@ -16,6 +16,8 @@ type Snapshot struct {
 
 type HostInfo struct {
 	Name   string     `json:"name"`
+	OS     string     `json:"os"`     // distro PRETTY_NAME; "" if unknown
+	Kernel string     `json:"kernel"` // kernel release; "" if unknown
 	Uptime int64      `json:"uptime"`
 	Load   [3]float64 `json:"load"`
 }
