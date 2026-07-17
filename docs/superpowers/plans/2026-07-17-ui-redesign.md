@@ -12,7 +12,7 @@
 
 ## Global Constraints
 
-- **Build env:** `go` is not on the default PATH. Every Go command needs `export PATH=$PATH:/usr/local/go/bin` and `export CGO_ENABLED=1`.
+- **Build env:** `go` is not on the default PATH. Every Go command needs `export PATH=$PATH:/home/xuanlocserver/.local/go/bin` and `export CGO_ENABLED=1`.
 - **Never bind host port 8080** — filebrowser owns it. The web app is `:8090`.
 - **One `web/` directory, two form factors.** Every frontend change must work in both the browser and the WebKitGTK desktop window. No form-factor-specific CSS or JS.
 - **Light theme only.** The dark palette is deleted, not kept behind a toggle.
@@ -106,7 +106,7 @@ func TestReadKernelMissingFile(t *testing.T) {
 - [ ] **Step 2: Run the tests to verify they fail**
 
 ```bash
-export PATH=$PATH:/usr/local/go/bin && export CGO_ENABLED=1
+export PATH=$PATH:/home/xuanlocserver/.local/go/bin && export CGO_ENABLED=1
 go test ./internal/collect/ -run 'OSRelease|OSName|Kernel' -v
 ```
 
@@ -146,7 +146,10 @@ func ParseOSRelease(r io.Reader) string {
 // container) so the web app reports the host's distro, not the image's.
 // Returns "" when unavailable; the UI then omits the field.
 func ReadOSName(hostRoot string) string {
-	f, err := os.Open(filepath.Join(hostRoot, "etc", "os-release"))
+	// The suffix must be absolute: filepath.Join("", "etc", "os-release") drops
+	// the empty prefix and yields a RELATIVE "etc/os-release", which breaks the
+	// desktop head (HostRoot == ""). Same pattern as fs.go's Join(hostRoot, m.Mountpoint).
+	f, err := os.Open(filepath.Join(hostRoot, "/etc/os-release"))
 	if err != nil {
 		return ""
 	}
@@ -309,7 +312,7 @@ func TestParseNetDevNoPhysical(t *testing.T) {
 - [ ] **Step 2: Run the tests to verify they fail**
 
 ```bash
-export PATH=$PATH:/usr/local/go/bin && export CGO_ENABLED=1
+export PATH=$PATH:/home/xuanlocserver/.local/go/bin && export CGO_ENABLED=1
 go test ./internal/collect/ -run TestParseNetDev -v
 ```
 
@@ -455,7 +458,7 @@ func TestReadCPUModelMissingFile(t *testing.T) {
 - [ ] **Step 2: Run the tests to verify they fail**
 
 ```bash
-export PATH=$PATH:/usr/local/go/bin && export CGO_ENABLED=1
+export PATH=$PATH:/home/xuanlocserver/.local/go/bin && export CGO_ENABLED=1
 go test ./internal/collect/ -run TestParseCPUModel -v
 ```
 
@@ -604,7 +607,7 @@ func TestLoadClampsBelowMinimum(t *testing.T) {
 - [ ] **Step 2: Run the tests to verify they fail**
 
 ```bash
-export PATH=$PATH:/usr/local/go/bin && export CGO_ENABLED=1
+export PATH=$PATH:/home/xuanlocserver/.local/go/bin && export CGO_ENABLED=1
 go test ./internal/desktop/ -run 'WindowSizeRoundTrip|ClampsBelowMinimum' -v
 ```
 
@@ -834,6 +837,14 @@ body {
 /* ---- card header ---- */
 .ch { display: flex; align-items: center; gap: 9px; margin-bottom: 7px; flex: none; }
 .cico { width: 26px; height: 26px; border-radius: 7px; display: grid; place-items: center; font-size: 13px; flex: none; }
+/* Card icon tints — a pale wash of that card's own series colour. These washes
+   and the #conn badge's tints are the only literal colours below :root; every
+   other colour in this file is a var. */
+.cico.i-blue { background: #e8f0fe; color: var(--blue); }
+.cico.i-red { background: #fdeaee; color: var(--red); }
+.cico.i-green { background: #eafaf0; color: var(--green); }
+.cico.i-purple { background: #f7ecfe; color: var(--purple); }
+.cico.i-plain { background: var(--track); color: var(--ink); }
 .ct { font-size: 13.5px; font-weight: 700; letter-spacing: -.01em; }
 /* Every card has a subtitle, even a derived one — a missing subtitle would
    make that card's header shorter and its chart taller than its neighbours'. */
@@ -866,6 +877,16 @@ body {
 /* A dot maps a row to its series. .hole keeps rows without a series aligned. */
 .dot { width: 6px; height: 6px; border-radius: 50%; flex: none; }
 .dot.hole { background: transparent; }
+/* Series swatches. One rule per colour, worn by whatever marks that series —
+   a legend dot, a stacked-bar segment, or a key square — so the palette stays
+   defined only in :root. */
+.sw-blue { background: var(--blue); }
+.sw-red { background: var(--red); }
+.sw-green { background: var(--green); }
+.sw-amber { background: var(--amber); }
+.sw-cyan { background: var(--cyan); }
+.sw-purple { background: var(--purple); }
+.sw-track { background: var(--track); }
 .sep { border-top: 1px solid var(--line); margin: 5px 0; flex: none; }
 .cap {
   font-size: 8.5px; letter-spacing: .05em; color: var(--sub); font-weight: 600;
@@ -953,7 +974,7 @@ Replace all of `web/index.html`:
     <div class="col" id="colLeft">
       <section class="card" id="card-cpu">
         <div class="ch">
-          <div class="cico" style="background:#e8f0fe;color:#2f7ff5">▦</div>
+          <div class="cico i-blue">▦</div>
           <div><div class="ct">CPU</div><div class="cs" id="subCpu">—</div></div>
         </div>
         <div class="cbody">
@@ -970,7 +991,7 @@ Replace all of `web/index.html`:
 
       <section class="card" id="card-mem">
         <div class="ch">
-          <div class="cico" style="background:#fdeaee;color:#ef4444">▤</div>
+          <div class="cico i-red">▤</div>
           <div><div class="ct">Memory &amp; Swap</div><div class="cs" id="subMem">—</div></div>
         </div>
         <div class="cbody">
@@ -987,7 +1008,7 @@ Replace all of `web/index.html`:
 
       <section class="card" id="card-gpu">
         <div class="ch">
-          <div class="cico" style="background:#eafaf0;color:#22c55e">◫</div>
+          <div class="cico i-green">◫</div>
           <div><div class="ct">GPU</div><div class="cs" id="subGpu">—</div></div>
         </div>
         <div class="cbody">
@@ -1004,7 +1025,7 @@ Replace all of `web/index.html`:
 
       <section class="card" id="card-net">
         <div class="ch">
-          <div class="cico" style="background:#e8f0fe;color:#2f7ff5">⇅</div>
+          <div class="cico i-blue">⇅</div>
           <div><div class="ct">Network</div><div class="cs" id="subNet">—</div></div>
         </div>
         <div class="cbody">
@@ -1021,7 +1042,7 @@ Replace all of `web/index.html`:
 
       <section class="card" id="card-disk">
         <div class="ch">
-          <div class="cico" style="background:#f7ecfe;color:#a855f7">▥</div>
+          <div class="cico i-purple">▥</div>
           <div><div class="ct">Disk</div><div class="cs" id="subDisk">—</div></div>
         </div>
         <div class="cbody">
@@ -1040,7 +1061,7 @@ Replace all of `web/index.html`:
     <div class="col" id="colRight">
       <section class="card" id="card-proc">
         <div class="ch">
-          <div class="cico" style="background:#eef0f4;color:#1a1d23">≡</div>
+          <div class="cico i-plain">≡</div>
           <div><div class="ct">Top Processes</div><div class="cs" id="subProc">by CPU</div></div>
         </div>
         <div class="tw" data-fit="proc">
@@ -1053,7 +1074,7 @@ Replace all of `web/index.html`:
 
       <section class="card" id="card-fs">
         <div class="ch">
-          <div class="cico" style="background:#eef0f4;color:#1a1d23">◰</div>
+          <div class="cico i-plain">◰</div>
           <div><div class="ct">Filesystems</div><div class="cs" id="subFs">by usage</div></div>
         </div>
         <div class="tw" data-fit="fs">
@@ -1205,7 +1226,7 @@ connect();
 `cmd/web` defaults to the container's `/host/*` paths, so a native run needs the host paths passed explicitly. `HOST_ROOT` must be `/` and not the empty string — `config.env()` falls back to the default when a variable is empty.
 
 ```bash
-export PATH=$PATH:/usr/local/go/bin && export CGO_ENABLED=1
+export PATH=$PATH:/home/xuanlocserver/.local/go/bin && export CGO_ENABLED=1
 SD=/tmp/claude-1000/-media-xuanlocserver-DellEMC12T-workingspace-system-monitor-service/a07d4590-3c47-460d-a995-3bf9b12d59dd/scratchpad
 go build -o $SD/sm-web ./cmd/web
 HOST_PROC=/proc HOST_SYS=/sys HOST_ROOT=/ PORT=8090 $SD/sm-web &
@@ -1342,7 +1363,7 @@ And in `seedHistory`, add before the final `applySnap(...)` line:
 - [ ] **Step 5: Run and capture**
 
 ```bash
-export PATH=$PATH:/usr/local/go/bin && export CGO_ENABLED=1
+export PATH=$PATH:/home/xuanlocserver/.local/go/bin && export CGO_ENABLED=1
 SD=/tmp/claude-1000/-media-xuanlocserver-DellEMC12T-workingspace-system-monitor-service/a07d4590-3c47-460d-a995-3bf9b12d59dd/scratchpad
 go build -o $SD/sm-web ./cmd/web
 HOST_PROC=/proc HOST_SYS=/sys HOST_ROOT=/ PORT=8090 $SD/sm-web &
@@ -1384,20 +1405,20 @@ In `web/index.html`, replace `<div class="stats" id="memStats"></div>` with:
 
 ```html
           <div class="stats" id="memStats">
-            <div class="r"><span class="k"><i class="dot" style="background:#ef4444"></i>Memory</span><span class="v" id="memV">—</span></div>
+            <div class="r"><span class="k"><i class="dot sw-red"></i>Memory</span><span class="v" id="memV">—</span></div>
             <div class="r dim"><span class="k"><i class="dot hole"></i></span><span class="v" id="memDim">—</span></div>
-            <div class="r"><span class="k"><i class="dot" style="background:#22c55e"></i>Swap</span><span class="v" id="swapV">—</span></div>
+            <div class="r"><span class="k"><i class="dot sw-green"></i>Swap</span><span class="v" id="swapV">—</span></div>
             <div class="r dim"><span class="k"><i class="dot hole"></i></span><span class="v" id="swapDim">—</span></div>
             <div class="sep"></div>
             <div class="cap">RAM breakdown</div>
             <div class="stack">
-              <i id="stkUsed" style="background:#ef4444"></i>
-              <i id="stkCache" style="background:#f59e0b"></i>
+              <i id="stkUsed" class="sw-red"></i>
+              <i id="stkCache" class="sw-amber"></i>
             </div>
             <div class="skey">
-              <span><b style="background:#ef4444"></b><span id="keyUsed">—</span></span>
-              <span><b style="background:#f59e0b"></b><span id="keyCache">—</span></span>
-              <span><b style="background:#eef0f4"></b><span id="keyFree">—</span></span>
+              <span><b class="sw-red"></b><span id="keyUsed">—</span></span>
+              <span><b class="sw-amber"></b><span id="keyCache">—</span></span>
+              <span><b class="sw-track"></b><span id="keyFree">—</span></span>
             </div>
           </div>
 ```
@@ -1408,14 +1429,14 @@ Replace `<div class="stats" id="gpuStats"></div>` with:
 
 ```html
           <div class="stats" id="gpuStats">
-            <div class="r"><span class="k"><i class="dot" style="background:#2f7ff5"></i>Utilisation</span><span class="v" id="gpuUtil">—</span></div>
+            <div class="r"><span class="k"><i class="dot sw-blue"></i>Utilisation</span><span class="v" id="gpuUtil">—</span></div>
             <div class="r"><span class="k"><i class="dot hole"></i>Temperature</span><span class="v" id="gpuTemp">—</span></div>
             <div class="r"><span class="k"><i class="dot hole"></i>Power</span><span class="v" id="gpuPower">—</span></div>
             <div class="r"><span class="k"><i class="dot hole"></i>Clock</span><span class="v" id="gpuClk">—</span></div>
             <div class="r" id="gpuFanRow"><span class="k"><i class="dot hole"></i>Fan</span><span class="v" id="gpuFan">—</span></div>
             <div class="sep"></div>
             <div class="cap" id="gpuVramCap">VRAM</div>
-            <div class="stack"><i id="gpuVramBar" style="background:#2f7ff5"></i></div>
+            <div class="stack"><i id="gpuVramBar" class="sw-blue"></i></div>
           </div>
 ```
 
@@ -1484,7 +1505,7 @@ In `seedHistory`, after the `cpuChart.seed(...)` line, add:
 - [ ] **Step 5: Run and capture**
 
 ```bash
-export PATH=$PATH:/usr/local/go/bin && export CGO_ENABLED=1
+export PATH=$PATH:/home/xuanlocserver/.local/go/bin && export CGO_ENABLED=1
 SD=/tmp/claude-1000/-media-xuanlocserver-DellEMC12T-workingspace-system-monitor-service/a07d4590-3c47-460d-a995-3bf9b12d59dd/scratchpad
 go build -o $SD/sm-web ./cmd/web
 HOST_PROC=/proc HOST_SYS=/sys HOST_ROOT=/ PORT=8090 $SD/sm-web &
@@ -1528,9 +1549,9 @@ In `web/index.html`, replace `<div class="stats" id="netStats"></div>` with:
 
 ```html
           <div class="stats" id="netStats">
-            <div class="r"><span class="k"><i class="dot" style="background:#2f7ff5"></i>Receiving ↓</span><span class="v" id="netRx">—</span></div>
+            <div class="r"><span class="k"><i class="dot sw-blue"></i>Receiving ↓</span><span class="v" id="netRx">—</span></div>
             <div class="r dim"><span class="k"><i class="dot hole"></i>peak 1 min</span><span class="v" id="netRxPeak">—</span></div>
-            <div class="r"><span class="k"><i class="dot" style="background:#f59e0b"></i>Sending ↑</span><span class="v" id="netTx">—</span></div>
+            <div class="r"><span class="k"><i class="dot sw-amber"></i>Sending ↑</span><span class="v" id="netTx">—</span></div>
             <div class="r dim"><span class="k"><i class="dot hole"></i>peak 1 min</span><span class="v" id="netTxPeak">—</span></div>
             <div class="sep"></div>
             <div class="r"><span class="k"><i class="dot hole"></i>Total received</span><span class="v" id="netRxTot">—</span></div>
@@ -1544,8 +1565,8 @@ Replace `<div class="stats" id="dskStats"></div>` with:
 
 ```html
           <div class="stats" id="dskStats">
-            <div class="r"><span class="k"><i class="dot" style="background:#38bdf8"></i>Reading ↓</span><span class="v" id="dskR">—</span></div>
-            <div class="r"><span class="k"><i class="dot" style="background:#a855f7"></i>Writing ↑</span><span class="v" id="dskW">—</span></div>
+            <div class="r"><span class="k"><i class="dot sw-cyan"></i>Reading ↓</span><span class="v" id="dskR">—</span></div>
+            <div class="r"><span class="k"><i class="dot sw-purple"></i>Writing ↑</span><span class="v" id="dskW">—</span></div>
             <div class="sep"></div>
             <div class="cap">Utilisation per device</div>
             <div id="devList"></div>
@@ -1611,7 +1632,7 @@ In `seedHistory`, after the `memChart.seed(...)` line, add:
 Generate disk and network activity so the cards are not all zeroes:
 
 ```bash
-export PATH=$PATH:/usr/local/go/bin && export CGO_ENABLED=1
+export PATH=$PATH:/home/xuanlocserver/.local/go/bin && export CGO_ENABLED=1
 SD=/tmp/claude-1000/-media-xuanlocserver-DellEMC12T-workingspace-system-monitor-service/a07d4590-3c47-460d-a995-3bf9b12d59dd/scratchpad
 go build -o $SD/sm-web ./cmd/web
 HOST_PROC=/proc HOST_SYS=/sys HOST_ROOT=/ PORT=8090 $SD/sm-web &
@@ -1749,7 +1770,7 @@ Update any line that states the default is 8. Leave the spec and this plan alone
 - [ ] **Step 4: Verify the backend still passes**
 
 ```bash
-export PATH=$PATH:/usr/local/go/bin && export CGO_ENABLED=1
+export PATH=$PATH:/home/xuanlocserver/.local/go/bin && export CGO_ENABLED=1
 go build ./... && go test ./internal/...
 ```
 
@@ -1801,7 +1822,7 @@ Building to spec is not the same as looking right. This task is the review the u
 - [ ] **Step 1: Serve the app on live data**
 
 ```bash
-export PATH=$PATH:/usr/local/go/bin && export CGO_ENABLED=1
+export PATH=$PATH:/home/xuanlocserver/.local/go/bin && export CGO_ENABLED=1
 SD=/tmp/claude-1000/-media-xuanlocserver-DellEMC12T-workingspace-system-monitor-service/a07d4590-3c47-460d-a995-3bf9b12d59dd/scratchpad
 mkdir -p $SD/shots
 go build -o $SD/sm-web ./cmd/web

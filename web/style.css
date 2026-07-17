@@ -1,61 +1,174 @@
 :root {
-  --bg: #1e1e2e; --tile: #252537; --line: #3a3a52; --text: #d9d9e3;
-  --sub: #8a8aa0; --accent: #7aa2f7; --mem: #f7768e; --swap: #9ece6a;
-  --rx: #7aa2f7; --tx: #e0af68; --read: #7dcfff; --write: #bb9af7; --util: #f7768e;
+  --bg: #f6f7f9; --card: #fff; --line: #e8eaee; --track: #eef0f4;
+  --ink: #1a1d23; --sub: #8b909a;
+  --blue: #2f7ff5; --green: #22c55e; --red: #ef4444;
+  --purple: #a855f7; --cyan: #38bdf8; --amber: #f59e0b;
+  --on-accent: #fff;              /* ink laid over --blue, not over --card */
+  --grid: rgba(26, 29, 35, 0.07); /* chart gridlines; read by chart.js */
+  --gutter: 54px;                 /* fixed Y-label column — the left edge of every plot */
+  --statsw: 210px;                /* fixed stats column — the right edge of every plot */
 }
 * { box-sizing: border-box; margin: 0; }
 html, body { height: 100%; }
 body {
-  background: var(--bg); color: var(--text);
-  font: 13px/1.3 system-ui, sans-serif; overflow: hidden;
+  background: var(--bg); color: var(--ink);
+  font: 13px/1.35 system-ui, -apple-system, sans-serif;
+  overflow: auto; /* only ever engages below the minimum size; see #app */
 }
-#app { height: 100vh; display: flex; flex-direction: column; padding: 6px; gap: 6px; }
-#topbar { display: flex; gap: 18px; align-items: center; padding: 2px 8px; color: var(--sub); }
-#topbar #host { color: var(--text); font-weight: 600; }
-#conn { margin-left: auto; padding: 1px 8px; border-radius: 8px; font-size: 11px; }
-#conn.on { background: #2b4a2b; color: #9ece6a; }
-#conn.off { background: #4a2b2b; color: #f7768e; }
 
+/* Fits exactly one viewport at or above the floor. Below the floor the app
+   keeps its minimum size and the body scrolls, which is the browser-only
+   escape hatch — the desktop shell blocks resizing below it instead. */
+#app {
+  height: 100vh; min-width: 1100px; min-height: 780px;
+  display: flex; flex-direction: column;
+}
+
+/* ---- topbar ---- */
+#topbar { display: flex; align-items: center; padding: 9px 12px; flex: none; }
+.brand { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 700; }
+.logo {
+  width: 24px; height: 24px; border-radius: 7px; background: var(--blue); color: var(--on-accent);
+  display: grid; place-items: center; font-size: 13px; flex: none;
+}
+.meta { display: flex; align-items: center; gap: 11px; margin-left: 16px; font-size: 11px; color: var(--sub); }
+.meta b { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+.meta .d { width: 1px; height: 11px; background: var(--line); flex: none; }
+/* OS and kernel are the first things to go when the window narrows, and are
+   hidden outright when the collector could not read them. */
+@media (max-width: 1320px) { .meta .sm { display: none; } }
+.meta.no-os .sm { display: none; }
+
+#conn {
+  margin-left: auto; display: flex; align-items: center; gap: 6px;
+  font-size: 10.5px; font-weight: 600; padding: 3px 9px; border-radius: 20px;
+}
+#conn i { width: 5px; height: 5px; border-radius: 50%; display: block; }
+#conn.on { background: #eafaf0; color: #15803d; }
+#conn.on i { background: var(--green); }
+#conn.off { background: #fdeaee; color: #b91c1c; }
+#conn.off i { background: var(--red); }
+
+/* ---- grid: ONE row, so both columns are the same height by definition ---- */
 #grid {
-  flex: 1; display: grid; gap: 6px; min-height: 0;
-  grid-template-columns: 1.4fr 1fr 1fr;
-  grid-template-rows: 1.5fr 1fr 1fr;
-  grid-template-areas:
-    "cpu cpu gpu"
-    "mem net disk"
-    "fs  proc proc";
+  flex: 1; min-height: 0; display: grid;
+  grid-template-columns: 1fr 400px; grid-template-rows: 1fr;
+  gap: 8px; padding: 0 10px 10px;
 }
-#tile-cpu { grid-area: cpu; } #tile-gpu { grid-area: gpu; }
-#tile-mem { grid-area: mem; } #tile-net { grid-area: net; }
-#tile-disk { grid-area: disk; } #tile-fs { grid-area: fs; }
-#tile-proc { grid-area: proc; }
-
-.tile {
-  background: var(--tile); border: 1px solid var(--line); border-radius: 8px;
-  padding: 8px; display: flex; flex-direction: column; min-height: 0; overflow: hidden;
+.col { display: flex; flex-direction: column; gap: 8px; min-height: 0; }
+.card {
+  background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+  padding: 8px 13px; display: flex; flex-direction: column; min-height: 0; overflow: hidden;
 }
-.tile h2 { font-size: 12px; color: var(--sub); font-weight: 600; margin-bottom: 6px; display: flex; gap: 8px; align-items: baseline; }
-.tile h2 .val { color: var(--accent); font-size: 14px; margin-left: auto; }
-.tile h2 .sub { color: var(--sub); font-weight: 400; }
-canvas { width: 100%; flex: 1; min-height: 0; display: block; }
+#colLeft > .card { flex: 1; }
+#card-proc { flex: 3; }
+#card-fs { flex: 1; }
 
-.core-grid { display: grid; grid-template-columns: repeat(16, 1fr); gap: 2px; margin-top: 6px; height: 34px; }
-.core-cell { background: #2f2f45; border-radius: 2px; position: relative; overflow: hidden; }
-.core-cell > i { position: absolute; bottom: 0; left: 0; right: 0; background: var(--accent); }
+/* ---- card header ---- */
+.ch { display: flex; align-items: center; gap: 9px; margin-bottom: 5px; flex: none; }
+.cico { width: 26px; height: 26px; border-radius: 7px; display: grid; place-items: center; font-size: 13px; flex: none; }
+/* Card icon tints — a pale wash of that card's own series colour. These washes
+   and the #conn badge's tints are the only literal colours below :root; every
+   other colour in this file is a var. */
+.cico.i-blue { background: #e8f0fe; color: var(--blue); }
+.cico.i-red { background: #fdeaee; color: var(--red); }
+.cico.i-green { background: #eafaf0; color: var(--green); }
+.cico.i-purple { background: #f7ecfe; color: var(--purple); }
+.cico.i-plain { background: var(--track); color: var(--ink); }
+.ct { font-size: 13.5px; font-weight: 700; letter-spacing: -.01em; }
+/* Every card has a subtitle, even a derived one — a missing subtitle would
+   make that card's header shorter and its chart taller than its neighbours'. */
+.cs {
+  font-size: 10.5px; color: var(--sub); margin-top: 1px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 340px;
+}
 
-.bar { height: 12px; background: #2f2f45; border-radius: 6px; overflow: hidden; margin: 3px 0; }
-.fill { height: 100%; width: 0; transition: width .3s; }
-.fill.mem { background: var(--mem); } .fill.swap { background: var(--swap); }
-.kv { color: var(--sub); font-size: 12px; margin: 2px 0; }
-.kv b { color: var(--text); font-weight: 600; }
+/* ---- card body: [fixed gutter][flex chart] + [fixed stats] ---- */
+.cbody { display: flex; gap: 12px; flex: 1; min-height: 0; }
+.plot { flex: 1; min-width: 0; display: flex; flex-direction: column; min-height: 0; }
+.chartrow { display: flex; flex: 1; min-height: 0; }
+.gut {
+  width: var(--gutter); flex: none; display: flex; flex-direction: column;
+  justify-content: space-between; font-size: 9px; color: var(--sub);
+  text-align: right; padding-right: 6px; font-variant-numeric: tabular-nums;
+}
+.cv { flex: 1; min-width: 0; height: 100%; display: block; }
+.xax {
+  display: flex; justify-content: space-between; font-size: 9px; color: var(--sub);
+  margin-left: var(--gutter); margin-top: 3px; flex: none;
+}
+.stats { width: var(--statsw); flex: none; display: flex; flex-direction: column; min-height: 0; }
 
-#diskUtil { margin-top: 4px; display: flex; flex-direction: column; gap: 3px; }
-.util-row { display: grid; grid-template-columns: 70px 1fr 44px; gap: 6px; align-items: center; font-size: 11px; }
-.util-row .track { height: 8px; background: #2f2f45; border-radius: 4px; overflow: hidden; }
-.util-row .track > i { display: block; height: 100%; background: var(--util); }
+/* ---- stat rows ---- */
+/* line-height:1 keeps rows compact — at the 1100x780 floor five equally-tall
+   cards leave little headroom, and the CPU card also needs room for its
+   per-core grid below these rows. */
+.r { display: flex; align-items: baseline; gap: 8px; padding: 0; font-size: 11.5px; line-height: 1; flex: none; }
+.r .k { color: var(--sub); display: flex; align-items: center; gap: 6px; }
+.r .v { margin-left: auto; font-variant-numeric: tabular-nums; font-weight: 600; }
+.r.dim .k, .r.dim .v { color: var(--sub); font-weight: 400; font-size: 10px; }
+/* A dot maps a row to its series. .hole keeps rows without a series aligned. */
+.dot { width: 6px; height: 6px; border-radius: 50%; flex: none; }
+.dot.hole { background: transparent; }
+/* Series swatches. One rule per colour, worn by whatever marks that series —
+   a legend dot, a stacked-bar segment, or a key square — so the palette stays
+   defined only in :root. */
+.sw-blue { background: var(--blue); }
+.sw-red { background: var(--red); }
+.sw-green { background: var(--green); }
+.sw-amber { background: var(--amber); }
+.sw-cyan { background: var(--cyan); }
+.sw-purple { background: var(--purple); }
+.sw-track { background: var(--track); }
+.sep { border-top: 1px solid var(--line); margin: 2px 0; flex: none; }
+.cap {
+  font-size: 8.5px; letter-spacing: .05em; color: var(--sub); font-weight: 600;
+  text-transform: uppercase; line-height: 1.2; margin-bottom: 1px; flex: none;
+}
 
-.list { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 2px; }
-.list .row { display: grid; grid-template-columns: 1fr auto auto; gap: 10px; font-size: 12px; }
-.list .row .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.list .row .n { color: var(--sub); font-variant-numeric: tabular-nums; }
-#gpuStats { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 12px; }
+/* ---- per-core grid ---- */
+.cores { display: grid; grid-template-columns: repeat(16, 1fr); gap: 2px; flex: 1; min-height: 14px; }
+.cores i { background: var(--track); border-radius: 2px; position: relative; overflow: hidden; display: block; }
+.cores i b { position: absolute; bottom: 0; left: 0; right: 0; display: block; }
+
+/* ---- per-device utilisation ---- */
+#devList { display: flex; flex-direction: column; gap: 2px; overflow: hidden; }
+.dev {
+  display: grid; grid-template-columns: 66px 1fr 30px; gap: 6px;
+  align-items: center; font-size: 10px; padding: 0;
+}
+.dev .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dev .bar { height: 5px; background: var(--track); border-radius: 3px; overflow: hidden; }
+.dev .bar i { display: block; height: 100%; border-radius: 3px; background: var(--purple); }
+.dev .bar i.hot { background: var(--red); }
+.dev .pc { text-align: right; font-variant-numeric: tabular-nums; color: var(--sub); }
+
+/* ---- stacked bar ---- */
+.stack { height: 8px; border-radius: 4px; overflow: hidden; display: flex; background: var(--track); flex: none; }
+.stack i { display: block; height: 100%; }
+.skey { display: flex; gap: 10px; font-size: 9px; line-height: 1.15; color: var(--sub); margin-top: 3px; flex: none; }
+.skey b { display: inline-block; width: 6px; height: 6px; border-radius: 2px; margin-right: 3px; }
+
+/* ---- right-column tables ---- */
+.tw { flex: 1; min-height: 0; overflow: hidden; } /* overflow hidden, never auto: autoFit() trims instead */
+.tbl { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+.tbl th {
+  font-size: 8.5px; letter-spacing: .05em; text-transform: uppercase; color: var(--sub);
+  font-weight: 600; text-align: left; padding: 0 0 4px; border-bottom: 1px solid var(--line);
+}
+.tbl td { padding: 3px 0; border-bottom: 1px solid var(--track); }
+/* Numbers never wrap — a wrapped "365 MiB" would make its row taller than its
+   neighbours; the name/mount column ellipsizes to absorb the squeeze instead.
+   The left padding keeps adjacent right-aligned columns (and their headers)
+   from touching. */
+.tbl .n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; padding-left: 12px; }
+.tbl td.nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 0; width: 100%; }
+/* Always present, even when empty, so appending the note cannot re-overflow
+   the table that autoFit() just trimmed to fit. */
+.note { font-size: 9.5px; color: var(--sub); height: 14px; flex: none; padding-top: 2px; }
+.fsbar {
+  width: 60px; height: 5px; background: var(--track); border-radius: 3px;
+  overflow: hidden; display: inline-block; vertical-align: middle;
+}
+.fsbar i { display: block; height: 100%; background: var(--blue); }
+.fsbar i.hot { background: var(--red); }

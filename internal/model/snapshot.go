@@ -16,6 +16,8 @@ type Snapshot struct {
 
 type HostInfo struct {
 	Name   string     `json:"name"`
+	OS     string     `json:"os"`     // distro PRETTY_NAME; "" if unknown
+	Kernel string     `json:"kernel"` // kernel release; "" if unknown
 	Uptime int64      `json:"uptime"`
 	Load   [3]float64 `json:"load"`
 }
@@ -23,7 +25,8 @@ type HostInfo struct {
 type CPUInfo struct {
 	Agg   float64   `json:"agg"`
 	Cores []float64 `json:"cores"`
-	Temp  float64   `json:"temp"` // 0 if unknown
+	Temp  float64   `json:"temp"`  // 0 if unknown
+	Model string    `json:"model"` // e.g. "Intel(R) Core(TM) i9-14900K"; "" if unknown
 }
 
 type MemInfo struct {
@@ -37,10 +40,11 @@ type MemInfo struct {
 }
 
 type NetInfo struct {
-	RX      uint64 `json:"rx"`
-	TX      uint64 `json:"tx"`
-	RXTotal uint64 `json:"rx_total"`
-	TXTotal uint64 `json:"tx_total"`
+	RX      uint64   `json:"rx"`
+	TX      uint64   `json:"tx"`
+	RXTotal uint64   `json:"rx_total"`
+	TXTotal uint64   `json:"tx_total"`
+	Ifaces  []string `json:"ifaces"` // physical interfaces being summed
 }
 
 type DiskDev struct {

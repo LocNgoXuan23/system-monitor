@@ -5,13 +5,15 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 )
 
 type NetCounters struct {
-	RX uint64
-	TX uint64
+	RX     uint64
+	TX     uint64
+	Ifaces []string // names of the physical interfaces summed above, sorted
 }
 
 var netExclude = []string{"lo", "docker", "veth", "br-", "virbr", "vnet"}
@@ -25,8 +27,9 @@ func isVirtualIface(name string) bool {
 	return false
 }
 
-// ParseNetDev sums rx/tx bytes over physical interfaces. In /proc/net/dev the
-// value after the interface colon has rx-bytes at index 0 and tx-bytes at index 8.
+// ParseNetDev sums rx/tx bytes over physical interfaces and records their
+// names. In /proc/net/dev the value after the interface colon has rx-bytes at
+// index 0 and tx-bytes at index 8.
 func ParseNetDev(r io.Reader) NetCounters {
 	var c NetCounters
 	sc := bufio.NewScanner(r)
@@ -48,7 +51,10 @@ func ParseNetDev(r io.Reader) NetCounters {
 		tx, _ := strconv.ParseUint(f[8], 10, 64)
 		c.RX += rx
 		c.TX += tx
+		c.Ifaces = append(c.Ifaces, name)
 	}
+	// Sorted so the card subtitle does not reshuffle between ticks.
+	sort.Strings(c.Ifaces)
 	return c
 }
 

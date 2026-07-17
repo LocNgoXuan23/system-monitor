@@ -1,0 +1,132 @@
+// Per-card renderers. Each takes the snapshot and updates one card's DOM.
+// Chart handles (cpuChart, memChart, ...) and coreCells are globals created by
+// initCharts() in app.js.
+
+function renderCPU(s) {
+  const n = s.cpu.cores.length;
+  $('subCpu').textContent = n + ' cores' + (s.cpu.model ? ' · ' + s.cpu.model : '');
+  cpuChart.push(s.cpu.cores);
+  $('cpuAvg').textContent = pct(s.cpu.agg);
+  $('cpuMax').textContent = pct(peak(s.cpu.cores));
+  // temp === 0 is the collector's "unknown"; hide the row rather than show 0°C.
+  if (s.cpu.temp > 0) {
+    $('cpuTempRow').style.display = '';
+    $('cpuTemp').textContent = s.cpu.temp.toFixed(0) + '°C';
+  } else {
+    $('cpuTempRow').style.display = 'none';
+  }
+  const hot = cssVar('--red'), norm = cssVar('--blue');
+  s.cpu.cores.forEach((v, i) => {
+    const bar = coreCells[i];
+    if (!bar) return;
+    bar.style.height = v + '%';
+    bar.style.background = v > 80 ? hot : norm;
+  });
+}
+
+function renderMem(s) {
+  $('subMem').textContent = fmtBytes(s.mem.total) + ' RAM · ' + fmtBytes(s.mem.swap_total) + ' swap';
+  memChart.push([s.mem.pct, s.mem.swap_pct]);
+  $('memV').textContent = fmtBytes(s.mem.used) + ' / ' + fmtBytes(s.mem.total);
+  $('memDim').textContent = pct(s.mem.pct) + ' · cache ' + fmtBytes(s.mem.cache);
+  $('swapV').textContent = fmtBytes(s.mem.swap_used) + ' / ' + fmtBytes(s.mem.swap_total);
+  $('swapDim').textContent = pct(s.mem.swap_pct) + ' used';
+
+  const total = s.mem.total || 1;
+  const free = Math.max(0, s.mem.total - s.mem.used - s.mem.cache);
+  $('stkUsed').style.width = (s.mem.used / total) * 100 + '%';
+  $('stkCache').style.width = (s.mem.cache / total) * 100 + '%';
+  $('keyUsed').textContent = 'used ' + fmtBytes(s.mem.used);
+  $('keyCache').textContent = 'cache ' + fmtBytes(s.mem.cache);
+  $('keyFree').textContent = 'free ' + fmtBytes(free);
+}
+
+// Only called when hasGPU; the card is removed from the DOM otherwise.
+function renderGPU(s) {
+  const g = s.gpu[0];
+  $('subGpu').textContent = g.name;
+  gpuChart.push([g.util]);
+  $('gpuUtil').textContent = g.util + '%';
+  $('gpuTemp').textContent = g.temp + '°C';
+  $('gpuPower').textContent = g.power + ' W';
+  $('gpuClk').textContent = g.clk_sm + ' MHz';
+  // NVML reports -1 when the card exposes no fan (e.g. passively cooled).
+  if (g.fan >= 0) {
+    $('gpuFanRow').style.display = '';
+    $('gpuFan').textContent = g.fan + '%';
+  } else {
+    $('gpuFanRow').style.display = 'none';
+  }
+  $('gpuVramCap').textContent = 'VRAM · ' + fmtBytes(g.mem_used) + ' / ' + fmtBytes(g.mem_total);
+  $('gpuVramBar').style.width = (g.mem_total ? (g.mem_used / g.mem_total) * 100 : 0) + '%';
+}
+
+function renderNet(s) {
+  // Real interface names — the design's "enp5s0 - 1 Gb/s" invented a link
+  // speed the app does not collect.
+  $('subNet').textContent = s.net.ifaces.length ? s.net.ifaces.join(' + ') : 'no interface';
+  netChart.push([s.net.rx, s.net.tx]);
+  $('netRx').textContent = fmtRate(s.net.rx);
+  $('netTx').textContent = fmtRate(s.net.tx);
+  // Peaks come from the chart's own rolling window, so RX and TX get their own
+  // number instead of the design's duplicated "Max" row.
+  $('netRxPeak').textContent = fmtRate(peak(netChart.data[0]));
+  $('netTxPeak').textContent = fmtRate(peak(netChart.data[1]));
+  $('netRxTot').textContent = fmtBytes(s.net.rx_total);
+  $('netTxTot').textContent = fmtBytes(s.net.tx_total);
+}
+
+function renderDisk(s) {
+  const devs = s.disk.devs.slice().sort((a, b) => b.util - a.util);
+  $('subDisk').textContent = devs.length + (devs.length === 1 ? ' device' : ' devices');
+  diskChart.push([s.disk.read, s.disk.write]);
+  $('dskR').textContent = fmtRate(s.disk.read);
+  $('dskW').textContent = fmtRate(s.disk.write);
+  // Sorted descending: the device that matters is always the top row, which is
+  // also what makes this degrade gracefully with many devices.
+  $('devList').innerHTML = devs.map(d =>
+    `<div class="dev"><span class="nm" title="${esc(d.model || d.name)}">${esc(d.name)}</span>` +
+    `<span class="bar"><i class="${d.util > 75 ? 'hot' : ''}" style="width:${d.util.toFixed(0)}%"></i></span>` +
+    `<span class="pc">${d.util.toFixed(0)}%</span></div>`).join('');
+}
+
+function renderProc(s) {
+  // Already sorted by CPU descending server-side. No per-process icons: they
+  // carried no information the name doesn't.
+  $('procBody').innerHTML = s.proc.map(p =>
+    `<tr><td class="nm" title="${esc(p.name)}">${esc(p.name)}</td>` +
+    `<td class="n">${p.cpu.toFixed(0)}%</td>` +
+    `<td class="n">${fmtBytes(p.rss)}</td>` +
+    `<td class="n">${p.pid}</td></tr>`).join('');
+}
+
+function renderFS(s) {
+  // Sorted by % used descending — the full mount is the one worth seeing.
+  const fs = s.fs.slice().sort((a, b) => b.pct - a.pct);
+  $('fsBody').innerHTML = fs.map(f =>
+    `<tr><td class="nm" title="${esc(f.mount)}">${esc(f.mount)}</td>` +
+    `<td class="n">${fmtBytes(f.used)} / ${fmtBytes(f.total)}</td>` +
+    `<td class="n"><span class="fsbar"><i class="${f.pct > 90 ? 'hot' : ''}" style="width:${f.pct.toFixed(0)}%"></i></span></td>` +
+    `<td class="n">${f.pct.toFixed(0)}%</td></tr>`).join('');
+}
+
+// Trim rows from the bottom until each table fits its wrapper, so the right
+// column adapts to the window height without ever scrolling. The loop only
+// ever deletes, so it terminates. Both lists are pre-sorted, so the rows that
+// survive are the ones worth keeping.
+function autoFit() {
+  document.querySelectorAll('[data-fit]').forEach(wrap => {
+    const tb = wrap.querySelector('tbody');
+    if (!tb) return;
+    const total = tb.rows.length;
+    while (tb.rows.length > 1 && wrap.scrollHeight > wrap.clientHeight) {
+      tb.deleteRow(tb.rows.length - 1);
+    }
+    if (wrap.dataset.fit === 'fs') {
+      const hidden = total - tb.rows.length;
+      // Never truncate silently. #fsNote reserves its height even when empty,
+      // so writing into it cannot re-overflow the table just trimmed to fit.
+      $('fsNote').textContent = hidden > 0 ? `+${hidden} mount khác` : '';
+    }
+  });
+}

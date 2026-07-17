@@ -62,7 +62,7 @@ func Load(d Defaults) Config {
 		Port:           env("PORT", d.Port),
 		IntervalMS:     interval,
 		HistorySec:     envInt("HISTORY_SECONDS", 60),
-		ProcTopN:       envInt("PROC_TOP_N", 8),
+		ProcTopN:       envInt("PROC_TOP_N", 25),
 		ProcIntervalMS: envInt("PROC_INTERVAL_MS", interval),
 		HostProc:       env("HOST_PROC", d.HostProc),
 		HostSys:        env("HOST_SYS", d.HostSys),

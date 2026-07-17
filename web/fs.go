@@ -10,5 +10,5 @@ import "embed"
 // live within (or above) the directory tree it embeds. Extend the list when
 // new asset files are added.
 //
-//go:embed index.html style.css app.js chart.js
+//go:embed index.html style.css format.js chart.js cards.js app.js
 var FS embed.FS

@@ -9,59 +9,190 @@
 <body>
 <div id="app">
   <header id="topbar">
-    <span id="host">—</span>
-    <span id="uptime"></span>
-    <span id="load"></span>
-    <span id="clock"></span>
-    <span id="conn" class="off">offline</span>
+    <div class="brand"><span class="logo">◈</span> System Monitor</div>
+    <div class="meta" id="meta">
+      <b id="host">—</b>
+      <i class="d"></i>
+      <span class="sm" id="os"></span>
+      <i class="d sm"></i>
+      <span class="sm" id="kernel"></span>
+      <i class="d sm"></i>
+      <span>up <b id="uptime">—</b></span>
+      <i class="d"></i>
+      <span>load <b id="load">—</b></span>
+      <i class="d"></i>
+      <b id="clock">—</b>
+    </div>
+    <div id="conn" class="off"><i></i><span>Offline</span></div>
   </header>
 
   <main id="grid">
-    <section class="tile" id="tile-cpu">
-      <h2>CPU <span class="val" id="cpuAgg">0%</span> <span class="sub" id="cpuTemp"></span></h2>
-      <canvas id="cpuChart"></canvas>
-      <div id="coreGrid" class="core-grid"></div>
-    </section>
+    <div class="col" id="colLeft">
+      <section class="card" id="card-cpu">
+        <div class="ch">
+          <div class="cico i-blue">▦</div>
+          <div><div class="ct">CPU</div><div class="cs" id="subCpu">—</div></div>
+        </div>
+        <div class="cbody">
+          <div class="plot">
+            <div class="chartrow">
+              <div class="gut" id="cpuGut"><span>100%</span><span>50%</span><span>0%</span></div>
+              <canvas class="cv" id="cpuChart"></canvas>
+            </div>
+            <div class="xax"><span>60s</span><span>30s</span><span>now</span></div>
+          </div>
+          <div class="stats" id="cpuStats">
+            <div class="r"><span class="k"><i class="dot hole"></i>Average</span><span class="v" id="cpuAvg">—</span></div>
+            <div class="r"><span class="k"><i class="dot hole"></i>Max core</span><span class="v" id="cpuMax">—</span></div>
+            <div class="r" id="cpuTempRow"><span class="k"><i class="dot hole"></i>Temperature</span><span class="v" id="cpuTemp">—</span></div>
+            <div class="sep"></div>
+            <div class="cap">Per-core</div>
+            <div class="cores" id="coreGrid"></div>
+          </div>
+        </div>
+      </section>
 
-    <section class="tile" id="tile-gpu">
-      <h2>GPU <span class="sub" id="gpuName">—</span> <span class="val" id="gpuUtil">0%</span></h2>
-      <canvas id="gpuChart"></canvas>
-      <div class="kv" id="gpuStats"></div>
-    </section>
+      <section class="card" id="card-mem">
+        <div class="ch">
+          <div class="cico i-red">▤</div>
+          <div><div class="ct">Memory &amp; Swap</div><div class="cs" id="subMem">—</div></div>
+        </div>
+        <div class="cbody">
+          <div class="plot">
+            <div class="chartrow">
+              <div class="gut" id="memGut"><span>100%</span><span>50%</span><span>0%</span></div>
+              <canvas class="cv" id="memChart"></canvas>
+            </div>
+            <div class="xax"><span>60s</span><span>30s</span><span>now</span></div>
+          </div>
+          <div class="stats" id="memStats">
+            <div class="r"><span class="k"><i class="dot sw-red"></i>Memory</span><span class="v" id="memV">—</span></div>
+            <div class="r dim"><span class="k"><i class="dot hole"></i></span><span class="v" id="memDim">—</span></div>
+            <div class="r"><span class="k"><i class="dot sw-green"></i>Swap</span><span class="v" id="swapV">—</span></div>
+            <div class="r dim"><span class="k"><i class="dot hole"></i></span><span class="v" id="swapDim">—</span></div>
+            <div class="sep"></div>
+            <div class="cap">RAM breakdown</div>
+            <div class="stack">
+              <i id="stkUsed" class="sw-red"></i>
+              <i id="stkCache" class="sw-amber"></i>
+            </div>
+            <div class="skey">
+              <span><b class="sw-red"></b><span id="keyUsed">—</span></span>
+              <span><b class="sw-amber"></b><span id="keyCache">—</span></span>
+              <span><b class="sw-track"></b><span id="keyFree">—</span></span>
+            </div>
+          </div>
+        </div>
+      </section>
 
-    <section class="tile" id="tile-mem">
-      <h2>Memory &amp; Swap</h2>
-      <div class="bar"><div class="fill mem" id="memBar"></div></div>
-      <div class="kv" id="memText"></div>
-      <div class="bar"><div class="fill swap" id="swapBar"></div></div>
-      <div class="kv" id="swapText"></div>
-    </section>
+      <section class="card" id="card-gpu">
+        <div class="ch">
+          <div class="cico i-green">◫</div>
+          <div><div class="ct">GPU</div><div class="cs" id="subGpu">—</div></div>
+        </div>
+        <div class="cbody">
+          <div class="plot">
+            <div class="chartrow">
+              <div class="gut" id="gpuGut"><span>100%</span><span>50%</span><span>0%</span></div>
+              <canvas class="cv" id="gpuChart"></canvas>
+            </div>
+            <div class="xax"><span>60s</span><span>30s</span><span>now</span></div>
+          </div>
+          <div class="stats" id="gpuStats">
+            <div class="r"><span class="k"><i class="dot sw-blue"></i>Utilisation</span><span class="v" id="gpuUtil">—</span></div>
+            <div class="r"><span class="k"><i class="dot hole"></i>Temperature</span><span class="v" id="gpuTemp">—</span></div>
+            <div class="r"><span class="k"><i class="dot hole"></i>Power</span><span class="v" id="gpuPower">—</span></div>
+            <div class="r"><span class="k"><i class="dot hole"></i>Clock</span><span class="v" id="gpuClk">—</span></div>
+            <div class="r" id="gpuFanRow"><span class="k"><i class="dot hole"></i>Fan</span><span class="v" id="gpuFan">—</span></div>
+            <div class="sep"></div>
+            <div class="cap" id="gpuVramCap">VRAM</div>
+            <div class="stack"><i id="gpuVramBar" class="sw-blue"></i></div>
+          </div>
+        </div>
+      </section>
 
-    <section class="tile" id="tile-net">
-      <h2>Network</h2>
-      <canvas id="netChart"></canvas>
-      <div class="kv" id="netText"></div>
-    </section>
+      <section class="card" id="card-net">
+        <div class="ch">
+          <div class="cico i-blue">⇅</div>
+          <div><div class="ct">Network</div><div class="cs" id="subNet">—</div></div>
+        </div>
+        <div class="cbody">
+          <div class="plot">
+            <div class="chartrow">
+              <div class="gut" id="netGut"><span>—</span><span>—</span><span>0</span></div>
+              <canvas class="cv" id="netChart"></canvas>
+            </div>
+            <div class="xax"><span>60s</span><span>30s</span><span>now</span></div>
+          </div>
+          <div class="stats" id="netStats">
+            <div class="r"><span class="k"><i class="dot sw-blue"></i>Receiving ↓</span><span class="v" id="netRx">—</span></div>
+            <div class="r dim"><span class="k"><i class="dot hole"></i>peak 1 min</span><span class="v" id="netRxPeak">—</span></div>
+            <div class="r"><span class="k"><i class="dot sw-amber"></i>Sending ↑</span><span class="v" id="netTx">—</span></div>
+            <div class="r dim"><span class="k"><i class="dot hole"></i>peak 1 min</span><span class="v" id="netTxPeak">—</span></div>
+            <div class="sep"></div>
+            <div class="r"><span class="k"><i class="dot hole"></i>Total received</span><span class="v" id="netRxTot">—</span></div>
+            <div class="r"><span class="k"><i class="dot hole"></i>Total sent</span><span class="v" id="netTxTot">—</span></div>
+          </div>
+        </div>
+      </section>
 
-    <section class="tile" id="tile-disk">
-      <h2>Disk</h2>
-      <canvas id="diskChart"></canvas>
-      <div class="kv" id="diskText"></div>
-      <div id="diskUtil"></div>
-    </section>
+      <section class="card" id="card-disk">
+        <div class="ch">
+          <div class="cico i-purple">▥</div>
+          <div><div class="ct">Disk</div><div class="cs" id="subDisk">—</div></div>
+        </div>
+        <div class="cbody">
+          <div class="plot">
+            <div class="chartrow">
+              <div class="gut" id="dskGut"><span>—</span><span>—</span><span>0</span></div>
+              <canvas class="cv" id="diskChart"></canvas>
+            </div>
+            <div class="xax"><span>60s</span><span>30s</span><span>now</span></div>
+          </div>
+          <div class="stats" id="dskStats">
+            <div class="r"><span class="k"><i class="dot sw-cyan"></i>Reading ↓</span><span class="v" id="dskR">—</span></div>
+            <div class="r"><span class="k"><i class="dot sw-purple"></i>Writing ↑</span><span class="v" id="dskW">—</span></div>
+            <div class="sep"></div>
+            <div class="cap">Utilisation per device</div>
+            <div id="devList"></div>
+          </div>
+        </div>
+      </section>
+    </div>
 
-    <section class="tile" id="tile-fs">
-      <h2>Filesystems</h2>
-      <div id="fsList" class="list"></div>
-    </section>
+    <div class="col" id="colRight">
+      <section class="card" id="card-proc">
+        <div class="ch">
+          <div class="cico i-plain">≡</div>
+          <div><div class="ct">Top Processes</div><div class="cs" id="subProc">by CPU</div></div>
+        </div>
+        <div class="tw" data-fit="proc">
+          <table class="tbl">
+            <thead><tr><th>Process</th><th class="n">CPU</th><th class="n">Memory</th><th class="n">PID</th></tr></thead>
+            <tbody id="procBody"></tbody>
+          </table>
+        </div>
+      </section>
 
-    <section class="tile" id="tile-proc">
-      <h2>Top processes</h2>
-      <div id="procList" class="list"></div>
-    </section>
+      <section class="card" id="card-fs">
+        <div class="ch">
+          <div class="cico i-plain">◰</div>
+          <div><div class="ct">Filesystems</div><div class="cs" id="subFs">by usage</div></div>
+        </div>
+        <div class="tw" data-fit="fs">
+          <table class="tbl">
+            <thead><tr><th>Mount</th><th class="n">Used</th><th class="n"></th><th class="n">%</th></tr></thead>
+            <tbody id="fsBody"></tbody>
+          </table>
+        </div>
+        <div class="note" id="fsNote"></div>
+      </section>
+    </div>
   </main>
 </div>
+<script src="format.js"></script>
 <script src="chart.js"></script>
+<script src="cards.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

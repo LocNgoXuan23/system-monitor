@@ -20,7 +20,7 @@ data modeling, tradeoff discussion, technical approach.
 `go` is not on the default PATH. Export it and enable CGO (NVML + WebKitGTK need it):
 
 ```bash
-export PATH=$PATH:/usr/local/go/bin
+export PATH=$PATH:/home/xuanlocserver/.local/go/bin
 export CGO_ENABLED=1
 ```
 

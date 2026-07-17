@@ -80,6 +80,8 @@ func main() {
 		URL:         url,
 		Width:       ws.Width,
 		Height:      ws.Height,
+		MinWidth:    desktop.MinWidth,
+		MinHeight:   desktop.MinHeight,
 		AutoCloseMS: autoclose,
 		OnClose: func(w, h int) {
 			if err := desktop.SaveWindowSize(desktop.WindowSize{Width: w, Height: h}); err != nil {

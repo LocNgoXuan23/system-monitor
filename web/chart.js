@@ -1,12 +1,13 @@
 // Minimal rolling line chart on a canvas. Fixed or auto Y scale.
 class Chart {
-  constructor(canvas, { series, maxPoints = 60, yMax = null, fill = false }) {
+  constructor(canvas, { series, maxPoints = 60, yMax = null, fill = false, onScale = null }) {
     this.c = canvas;
     this.ctx = canvas.getContext('2d');
     this.series = series;            // [{color}]
     this.maxPoints = maxPoints;
     this.yMax = yMax;                // null = auto
     this.fill = fill;
+    this.onScale = onScale;          // called with the resolved Y max after each render
     this.data = series.map(() => []);// per-series array of values
     this._resize();
     if (typeof ResizeObserver !== 'undefined') {
@@ -44,8 +45,9 @@ class Chart {
       for (const s of this.data) for (const v of s) if (v > ymax) ymax = v;
       ymax *= 1.15;
     }
-    // gridlines
-    ctx.strokeStyle = 'rgba(255,255,255,0.06)'; ctx.lineWidth = 1;
+    // Gridline colour comes from the theme, so the chart is legible on any
+    // background instead of assuming a dark one.
+    ctx.strokeStyle = cssVar('--grid') || 'rgba(0,0,0,0.07)'; ctx.lineWidth = 1;
     for (let g = 1; g < 4; g++) {
       const y = (h * g) / 4; ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
     }
@@ -68,5 +70,8 @@ class Chart {
         ctx.fillStyle = this.series[s].color + '22'; ctx.fill();
       }
     }
+    // Safe to call during render: the gutter is a fixed width, so relabelling
+    // it cannot resize the canvas and re-enter here.
+    if (this.onScale) this.onScale(ymax);
   }
 }
