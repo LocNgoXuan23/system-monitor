@@ -12,7 +12,7 @@
 
 ## Global Constraints
 
-- **Build env:** `go` is not on the default PATH. Every Go command needs `export PATH=$PATH:/usr/local/go/bin` and `export CGO_ENABLED=1`.
+- **Build env:** `go` is not on the default PATH. Every Go command needs `export PATH=$PATH:/home/xuanlocserver/.local/go/bin` and `export CGO_ENABLED=1`.
 - **Never bind host port 8080** — filebrowser owns it. The web app is `:8090`.
 - **One `web/` directory, two form factors.** Every frontend change must work in both the browser and the WebKitGTK desktop window. No form-factor-specific CSS or JS.
 - **Light theme only.** The dark palette is deleted, not kept behind a toggle.
@@ -106,7 +106,7 @@ func TestReadKernelMissingFile(t *testing.T) {
 - [ ] **Step 2: Run the tests to verify they fail**
 
 ```bash
-export PATH=$PATH:/usr/local/go/bin && export CGO_ENABLED=1
+export PATH=$PATH:/home/xuanlocserver/.local/go/bin && export CGO_ENABLED=1
 go test ./internal/collect/ -run 'OSRelease|OSName|Kernel' -v
 ```
 
@@ -146,7 +146,10 @@ func ParseOSRelease(r io.Reader) string {
 // container) so the web app reports the host's distro, not the image's.
 // Returns "" when unavailable; the UI then omits the field.
 func ReadOSName(hostRoot string) string {
-	f, err := os.Open(filepath.Join(hostRoot, "etc", "os-release"))
+	// The suffix must be absolute: filepath.Join("", "etc", "os-release") drops
+	// the empty prefix and yields a RELATIVE "etc/os-release", which breaks the
+	// desktop head (HostRoot == ""). Same pattern as fs.go's Join(hostRoot, m.Mountpoint).
+	f, err := os.Open(filepath.Join(hostRoot, "/etc/os-release"))
 	if err != nil {
 		return ""
 	}
@@ -309,7 +312,7 @@ func TestParseNetDevNoPhysical(t *testing.T) {
 - [ ] **Step 2: Run the tests to verify they fail**
 
 ```bash
-export PATH=$PATH:/usr/local/go/bin && export CGO_ENABLED=1
+export PATH=$PATH:/home/xuanlocserver/.local/go/bin && export CGO_ENABLED=1
 go test ./internal/collect/ -run TestParseNetDev -v
 ```
 
@@ -455,7 +458,7 @@ func TestReadCPUModelMissingFile(t *testing.T) {
 - [ ] **Step 2: Run the tests to verify they fail**
 
 ```bash
-export PATH=$PATH:/usr/local/go/bin && export CGO_ENABLED=1
+export PATH=$PATH:/home/xuanlocserver/.local/go/bin && export CGO_ENABLED=1
 go test ./internal/collect/ -run TestParseCPUModel -v
 ```
 
@@ -604,7 +607,7 @@ func TestLoadClampsBelowMinimum(t *testing.T) {
 - [ ] **Step 2: Run the tests to verify they fail**
 
 ```bash
-export PATH=$PATH:/usr/local/go/bin && export CGO_ENABLED=1
+export PATH=$PATH:/home/xuanlocserver/.local/go/bin && export CGO_ENABLED=1
 go test ./internal/desktop/ -run 'WindowSizeRoundTrip|ClampsBelowMinimum' -v
 ```
 
@@ -1223,7 +1226,7 @@ connect();
 `cmd/web` defaults to the container's `/host/*` paths, so a native run needs the host paths passed explicitly. `HOST_ROOT` must be `/` and not the empty string — `config.env()` falls back to the default when a variable is empty.
 
 ```bash
-export PATH=$PATH:/usr/local/go/bin && export CGO_ENABLED=1
+export PATH=$PATH:/home/xuanlocserver/.local/go/bin && export CGO_ENABLED=1
 SD=/tmp/claude-1000/-media-xuanlocserver-DellEMC12T-workingspace-system-monitor-service/a07d4590-3c47-460d-a995-3bf9b12d59dd/scratchpad
 go build -o $SD/sm-web ./cmd/web
 HOST_PROC=/proc HOST_SYS=/sys HOST_ROOT=/ PORT=8090 $SD/sm-web &
@@ -1360,7 +1363,7 @@ And in `seedHistory`, add before the final `applySnap(...)` line:
 - [ ] **Step 5: Run and capture**
 
 ```bash
-export PATH=$PATH:/usr/local/go/bin && export CGO_ENABLED=1
+export PATH=$PATH:/home/xuanlocserver/.local/go/bin && export CGO_ENABLED=1
 SD=/tmp/claude-1000/-media-xuanlocserver-DellEMC12T-workingspace-system-monitor-service/a07d4590-3c47-460d-a995-3bf9b12d59dd/scratchpad
 go build -o $SD/sm-web ./cmd/web
 HOST_PROC=/proc HOST_SYS=/sys HOST_ROOT=/ PORT=8090 $SD/sm-web &
@@ -1502,7 +1505,7 @@ In `seedHistory`, after the `cpuChart.seed(...)` line, add:
 - [ ] **Step 5: Run and capture**
 
 ```bash
-export PATH=$PATH:/usr/local/go/bin && export CGO_ENABLED=1
+export PATH=$PATH:/home/xuanlocserver/.local/go/bin && export CGO_ENABLED=1
 SD=/tmp/claude-1000/-media-xuanlocserver-DellEMC12T-workingspace-system-monitor-service/a07d4590-3c47-460d-a995-3bf9b12d59dd/scratchpad
 go build -o $SD/sm-web ./cmd/web
 HOST_PROC=/proc HOST_SYS=/sys HOST_ROOT=/ PORT=8090 $SD/sm-web &
@@ -1629,7 +1632,7 @@ In `seedHistory`, after the `memChart.seed(...)` line, add:
 Generate disk and network activity so the cards are not all zeroes:
 
 ```bash
-export PATH=$PATH:/usr/local/go/bin && export CGO_ENABLED=1
+export PATH=$PATH:/home/xuanlocserver/.local/go/bin && export CGO_ENABLED=1
 SD=/tmp/claude-1000/-media-xuanlocserver-DellEMC12T-workingspace-system-monitor-service/a07d4590-3c47-460d-a995-3bf9b12d59dd/scratchpad
 go build -o $SD/sm-web ./cmd/web
 HOST_PROC=/proc HOST_SYS=/sys HOST_ROOT=/ PORT=8090 $SD/sm-web &
@@ -1767,7 +1770,7 @@ Update any line that states the default is 8. Leave the spec and this plan alone
 - [ ] **Step 4: Verify the backend still passes**
 
 ```bash
-export PATH=$PATH:/usr/local/go/bin && export CGO_ENABLED=1
+export PATH=$PATH:/home/xuanlocserver/.local/go/bin && export CGO_ENABLED=1
 go build ./... && go test ./internal/...
 ```
 
@@ -1819,7 +1822,7 @@ Building to spec is not the same as looking right. This task is the review the u
 - [ ] **Step 1: Serve the app on live data**
 
 ```bash
-export PATH=$PATH:/usr/local/go/bin && export CGO_ENABLED=1
+export PATH=$PATH:/home/xuanlocserver/.local/go/bin && export CGO_ENABLED=1
 SD=/tmp/claude-1000/-media-xuanlocserver-DellEMC12T-workingspace-system-monitor-service/a07d4590-3c47-460d-a995-3bf9b12d59dd/scratchpad
 mkdir -p $SD/shots
 go build -o $SD/sm-web ./cmd/web
