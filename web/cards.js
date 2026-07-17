@@ -60,3 +60,32 @@ function renderGPU(s) {
   $('gpuVramCap').textContent = 'VRAM · ' + fmtBytes(g.mem_used) + ' / ' + fmtBytes(g.mem_total);
   $('gpuVramBar').style.width = (g.mem_total ? (g.mem_used / g.mem_total) * 100 : 0) + '%';
 }
+
+function renderNet(s) {
+  // Real interface names — the design's "enp5s0 - 1 Gb/s" invented a link
+  // speed the app does not collect.
+  $('subNet').textContent = s.net.ifaces.length ? s.net.ifaces.join(' + ') : 'no interface';
+  netChart.push([s.net.rx, s.net.tx]);
+  $('netRx').textContent = fmtRate(s.net.rx);
+  $('netTx').textContent = fmtRate(s.net.tx);
+  // Peaks come from the chart's own rolling window, so RX and TX get their own
+  // number instead of the design's duplicated "Max" row.
+  $('netRxPeak').textContent = fmtRate(peak(netChart.data[0]));
+  $('netTxPeak').textContent = fmtRate(peak(netChart.data[1]));
+  $('netRxTot').textContent = fmtBytes(s.net.rx_total);
+  $('netTxTot').textContent = fmtBytes(s.net.tx_total);
+}
+
+function renderDisk(s) {
+  const devs = s.disk.devs.slice().sort((a, b) => b.util - a.util);
+  $('subDisk').textContent = devs.length + (devs.length === 1 ? ' device' : ' devices');
+  diskChart.push([s.disk.read, s.disk.write]);
+  $('dskR').textContent = fmtRate(s.disk.read);
+  $('dskW').textContent = fmtRate(s.disk.write);
+  // Sorted descending: the device that matters is always the top row, which is
+  // also what makes this degrade gracefully with many devices.
+  $('devList').innerHTML = devs.map(d =>
+    `<div class="dev"><span class="nm" title="${esc(d.model || d.name)}">${esc(d.name)}</span>` +
+    `<span class="bar"><i class="${d.util > 75 ? 'hot' : ''}" style="width:${d.util.toFixed(0)}%"></i></span>` +
+    `<span class="pc">${d.util.toFixed(0)}%</span></div>`).join('');
+}

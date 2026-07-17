@@ -75,6 +75,8 @@ function applySnap(s) {
   renderCPU(s);
   renderMem(s);
   if (hasGPU && s.gpu.length) renderGPU(s);
+  renderNet(s);
+  renderDisk(s);
   renderTopbar(s);
 }
 
@@ -88,6 +90,8 @@ function seedHistory(history) {
   cpuChart.seed(past.map(x => x.cpu.cores || []));
   memChart.seed(past.map(x => [x.mem.pct, x.mem.swap_pct]));
   if (gpuChart) gpuChart.seed(past.map(x => [x.gpu && x.gpu[0] ? x.gpu[0].util : 0]));
+  netChart.seed(past.map(x => [x.net.rx, x.net.tx]));
+  diskChart.seed(past.map(x => [x.disk.read, x.disk.write]));
   applySnap(history[history.length - 1]);
 }
 

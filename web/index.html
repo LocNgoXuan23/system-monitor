@@ -124,7 +124,15 @@
             </div>
             <div class="xax"><span>60s</span><span>30s</span><span>now</span></div>
           </div>
-          <div class="stats" id="netStats"></div>
+          <div class="stats" id="netStats">
+            <div class="r"><span class="k"><i class="dot sw-blue"></i>Receiving ↓</span><span class="v" id="netRx">—</span></div>
+            <div class="r dim"><span class="k"><i class="dot hole"></i>peak 1 min</span><span class="v" id="netRxPeak">—</span></div>
+            <div class="r"><span class="k"><i class="dot sw-amber"></i>Sending ↑</span><span class="v" id="netTx">—</span></div>
+            <div class="r dim"><span class="k"><i class="dot hole"></i>peak 1 min</span><span class="v" id="netTxPeak">—</span></div>
+            <div class="sep"></div>
+            <div class="r"><span class="k"><i class="dot hole"></i>Total received</span><span class="v" id="netRxTot">—</span></div>
+            <div class="r"><span class="k"><i class="dot hole"></i>Total sent</span><span class="v" id="netTxTot">—</span></div>
+          </div>
         </div>
       </section>
 
@@ -141,7 +149,13 @@
             </div>
             <div class="xax"><span>60s</span><span>30s</span><span>now</span></div>
           </div>
-          <div class="stats" id="dskStats"></div>
+          <div class="stats" id="dskStats">
+            <div class="r"><span class="k"><i class="dot sw-cyan"></i>Reading ↓</span><span class="v" id="dskR">—</span></div>
+            <div class="r"><span class="k"><i class="dot sw-purple"></i>Writing ↑</span><span class="v" id="dskW">—</span></div>
+            <div class="sep"></div>
+            <div class="cap">Utilisation per device</div>
+            <div id="devList"></div>
+          </div>
         </div>
       </section>
     </div>
