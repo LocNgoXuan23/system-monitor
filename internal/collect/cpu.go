@@ -74,3 +74,30 @@ func ReadCPUStat(hostProc string) (CPUTimes, []CPUTimes, error) {
 	defer f.Close()
 	return ParseCPUStat(f)
 }
+
+// ParseCPUModel returns the first "model name" value from /proc/cpuinfo, or ""
+// if the key is absent (some ARM kernels omit it).
+func ParseCPUModel(r io.Reader) string {
+	sc := bufio.NewScanner(r)
+	for sc.Scan() {
+		line := sc.Text()
+		if !strings.HasPrefix(line, "model name") {
+			continue
+		}
+		if i := strings.IndexByte(line, ':'); i >= 0 {
+			return strings.TrimSpace(line[i+1:])
+		}
+	}
+	return ""
+}
+
+// ReadCPUModel reads the CPU model name. Constant for the process lifetime, so
+// callers should read it once rather than per tick.
+func ReadCPUModel(hostProc string) string {
+	f, err := os.Open(filepath.Join(hostProc, "cpuinfo"))
+	if err != nil {
+		return ""
+	}
+	defer f.Close()
+	return ParseCPUModel(f)
+}

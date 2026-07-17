@@ -19,8 +19,9 @@ type Collector struct {
 
 	// Immutable for the process lifetime, so they are read once in New()
 	// rather than on every tick.
-	osName string
-	kernel string
+	osName  string
+	kernel  string
+	cpuModel string
 
 	prevCPUAgg   CPUTimes
 	prevCPUCores []CPUTimes
@@ -39,6 +40,7 @@ func New(cfg config.Config, gpu GPUReader) *Collector {
 		disks:    disks,
 		osName:   ReadOSName(cfg.HostRoot),
 		kernel:   ReadKernel(cfg.HostProc),
+		cpuModel: ReadCPUModel(cfg.HostProc),
 		prevDisk: map[string]DiskCounters{},
 		prevProc: map[int]uint64{},
 	}
@@ -57,6 +59,7 @@ func (c *Collector) Tick(now time.Time) model.Snapshot {
 		snap.Mem = m
 	}
 	snap.CPU.Temp = ReadCPUTemp(c.cfg.HostSys)
+	snap.CPU.Model = c.cpuModel
 	snap.Net = c.net(dt)
 	snap.Disk = c.disk(dt)
 	snap.FS = ReadFS(c.cfg.HostProc, c.cfg.HostRoot)

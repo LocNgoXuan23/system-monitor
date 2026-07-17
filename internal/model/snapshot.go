@@ -25,7 +25,8 @@ type HostInfo struct {
 type CPUInfo struct {
 	Agg   float64   `json:"agg"`
 	Cores []float64 `json:"cores"`
-	Temp  float64   `json:"temp"` // 0 if unknown
+	Temp  float64   `json:"temp"`  // 0 if unknown
+	Model string    `json:"model"` // e.g. "Intel(R) Core(TM) i9-14900K"; "" if unknown
 }
 
 type MemInfo struct {

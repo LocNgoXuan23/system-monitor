@@ -52,3 +52,30 @@ func TestCPUPercentZeroDelta(t *testing.T) {
 		t.Errorf("CPUPercent = %v, want 0", got)
 	}
 }
+
+func TestParseCPUModel(t *testing.T) {
+	in := "processor\t: 0\n" +
+		"vendor_id\t: GenuineIntel\n" +
+		"model name\t: Intel(R) Core(TM) i9-14900K\n" +
+		"cpu MHz\t\t: 3187.000\n" +
+		"processor\t: 1\n" +
+		"model name\t: Intel(R) Core(TM) i9-14900K\n"
+	if got := ParseCPUModel(strings.NewReader(in)); got != "Intel(R) Core(TM) i9-14900K" {
+		t.Errorf("got %q, want %q", got, "Intel(R) Core(TM) i9-14900K")
+	}
+}
+
+// Some ARM kernels omit "model name" entirely. The UI then shows just the core
+// count, so the parser must return "" rather than erroring.
+func TestParseCPUModelAbsent(t *testing.T) {
+	in := "processor\t: 0\nBogoMIPS\t: 108.00\nFeatures\t: fp asimd\n"
+	if got := ParseCPUModel(strings.NewReader(in)); got != "" {
+		t.Errorf("got %q, want empty", got)
+	}
+}
+
+func TestReadCPUModelMissingFile(t *testing.T) {
+	if got := ReadCPUModel(t.TempDir()); got != "" {
+		t.Errorf("got %q, want empty", got)
+	}
+}
