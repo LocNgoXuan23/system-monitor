@@ -73,6 +73,8 @@ function applySnap(s) {
   s.proc = s.proc || [];
   if (!cpuChart) initCharts(s);
   renderCPU(s);
+  renderMem(s);
+  if (hasGPU && s.gpu.length) renderGPU(s);
   renderTopbar(s);
 }
 
@@ -84,6 +86,8 @@ function seedHistory(history) {
   if (!cpuChart) initCharts(first);
   const past = history.slice(0, -1);
   cpuChart.seed(past.map(x => x.cpu.cores || []));
+  memChart.seed(past.map(x => [x.mem.pct, x.mem.swap_pct]));
+  if (gpuChart) gpuChart.seed(past.map(x => [x.gpu && x.gpu[0] ? x.gpu[0].util : 0]));
   applySnap(history[history.length - 1]);
 }
 

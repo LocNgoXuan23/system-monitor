@@ -65,7 +65,23 @@
             </div>
             <div class="xax"><span>60s</span><span>30s</span><span>now</span></div>
           </div>
-          <div class="stats" id="memStats"></div>
+          <div class="stats" id="memStats">
+            <div class="r"><span class="k"><i class="dot sw-red"></i>Memory</span><span class="v" id="memV">—</span></div>
+            <div class="r dim"><span class="k"><i class="dot hole"></i></span><span class="v" id="memDim">—</span></div>
+            <div class="r"><span class="k"><i class="dot sw-green"></i>Swap</span><span class="v" id="swapV">—</span></div>
+            <div class="r dim"><span class="k"><i class="dot hole"></i></span><span class="v" id="swapDim">—</span></div>
+            <div class="sep"></div>
+            <div class="cap">RAM breakdown</div>
+            <div class="stack">
+              <i id="stkUsed" class="sw-red"></i>
+              <i id="stkCache" class="sw-amber"></i>
+            </div>
+            <div class="skey">
+              <span><b class="sw-red"></b><span id="keyUsed">—</span></span>
+              <span><b class="sw-amber"></b><span id="keyCache">—</span></span>
+              <span><b class="sw-track"></b><span id="keyFree">—</span></span>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -82,7 +98,16 @@
             </div>
             <div class="xax"><span>60s</span><span>30s</span><span>now</span></div>
           </div>
-          <div class="stats" id="gpuStats"></div>
+          <div class="stats" id="gpuStats">
+            <div class="r"><span class="k"><i class="dot sw-blue"></i>Utilisation</span><span class="v" id="gpuUtil">—</span></div>
+            <div class="r"><span class="k"><i class="dot hole"></i>Temperature</span><span class="v" id="gpuTemp">—</span></div>
+            <div class="r"><span class="k"><i class="dot hole"></i>Power</span><span class="v" id="gpuPower">—</span></div>
+            <div class="r"><span class="k"><i class="dot hole"></i>Clock</span><span class="v" id="gpuClk">—</span></div>
+            <div class="r" id="gpuFanRow"><span class="k"><i class="dot hole"></i>Fan</span><span class="v" id="gpuFan">—</span></div>
+            <div class="sep"></div>
+            <div class="cap" id="gpuVramCap">VRAM</div>
+            <div class="stack"><i id="gpuVramBar" class="sw-blue"></i></div>
+          </div>
         </div>
       </section>
 
