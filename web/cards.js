@@ -93,8 +93,7 @@ function renderProc(s) {
   $('procBody').innerHTML = s.proc.map(p =>
     `<tr><td class="nm" title="${esc(p.name)}">${esc(p.name)}</td>` +
     `<td class="n">${p.cpu.toFixed(0)}%</td>` +
-    `<td class="n">${fmtBytes(p.rss)}</td>` +
-    `<td class="n">${p.pid}</td></tr>`).join('');
+    `<td class="n">${fmtBytes(p.rss)}</td></tr>`).join('');
 }
 
 function renderFS(s) {

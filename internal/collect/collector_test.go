@@ -117,14 +117,14 @@ func TestCollectorTickDeltas(t *testing.T) {
 	}
 	var found bool
 	for _, p := range snap.Proc {
-		if p.PID == 1234 {
+		if p.Name == "testproc" {
 			found = true
 			if p.CPU != 100 {
-				t.Errorf("proc 1234 CPU = %v, want 100", p.CPU)
+				t.Errorf("proc testproc CPU = %v, want 100", p.CPU)
 			}
 		}
 	}
 	if !found {
-		t.Errorf("proc 1234 not found in %+v", snap.Proc)
+		t.Errorf("proc testproc not found in %+v", snap.Proc)
 	}
 }
