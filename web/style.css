@@ -50,12 +50,19 @@ body {
 #conn.off i { background: var(--red); }
 
 /* ---- grid: ONE row, so both columns are the same height by definition ---- */
+/* minmax(0, 1fr), not a bare 1fr: a bare fr track's automatic minimum is its
+   content's min-content, and a <canvas> reports its current *display* width as
+   intrinsic. So once the left column is laid out wide, the charts pin that
+   width as the track's floor and the column refuses to shrink when the window
+   narrows — the horizontal scrollbar you get by dragging a wide window smaller.
+   minmax(0, ...) floors the track at 0 so it always tracks the viewport, and
+   each canvas's ResizeObserver then redraws at the new width. */
 #grid {
   flex: 1; min-height: 0; display: grid;
-  grid-template-columns: 1fr 400px; grid-template-rows: 1fr;
+  grid-template-columns: minmax(0, 1fr) 400px; grid-template-rows: 1fr;
   gap: 8px; padding: 0 10px 10px;
 }
-.col { display: flex; flex-direction: column; gap: 8px; min-height: 0; }
+.col { display: flex; flex-direction: column; gap: 8px; min-height: 0; min-width: 0; }
 .card {
   background: var(--card); border: 1px solid var(--line); border-radius: 10px;
   padding: 8px 13px; display: flex; flex-direction: column; min-height: 0; overflow: hidden;
