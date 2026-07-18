@@ -94,15 +94,17 @@ body {
 .cbody { display: flex; gap: 12px; flex: 1; min-height: 0; }
 .plot { flex: 1; min-width: 0; display: flex; flex-direction: column; min-height: 0; }
 .chartrow { display: flex; flex: 1; min-height: 0; }
+/* The gutter sits to the RIGHT of the canvas (after it in .chartrow), so the
+   Y-scale labels read off the right edge like gnome-system-monitor. */
 .gut {
   width: var(--gutter); flex: none; display: flex; flex-direction: column;
   justify-content: space-between; font-size: 9px; color: var(--sub);
-  text-align: right; padding-right: 6px; font-variant-numeric: tabular-nums;
+  text-align: left; padding-left: 6px; font-variant-numeric: tabular-nums;
 }
 .cv { flex: 1; min-width: 0; height: 100%; display: block; }
 .xax {
   display: flex; justify-content: space-between; font-size: 9px; color: var(--sub);
-  margin-left: var(--gutter); margin-top: 3px; flex: none;
+  margin-right: var(--gutter); margin-top: 3px; flex: none;
 }
 .stats { width: var(--statsw); flex: none; display: flex; flex-direction: column; min-height: 0; }
 

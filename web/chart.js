@@ -51,6 +51,12 @@ class Chart {
     for (let g = 1; g < 4; g++) {
       const y = (h * g) / 4; ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
     }
+    // Vertical gridlines, one every 10s across the 60s window (6 columns → 5
+    // interior lines), matching gnome-system-monitor. They line up with the
+    // time labels in .xax.
+    for (let g = 1; g < 6; g++) {
+      const gx = (w * g) / 6; ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, h); ctx.stroke();
+    }
     const n = this.maxPoints;
     const x = i => (w * i) / (n - 1);
     const y = v => h - (v / ymax) * h;
