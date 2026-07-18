@@ -72,13 +72,14 @@ function renderNet(s) {
 
 function renderDisk(s) {
   const devs = s.disk.devs.slice().sort((a, b) => b.util - a.util);
-  $('subDisk').textContent = devs.length + (devs.length === 1 ? ' device' : ' devices');
+  // Cumulative bytes since boot (the running totals gnome-system-monitor shows)
+  // ride in the subtitle now — folding them out of the stats column is what lets
+  // the full per-device list fit as a list without clipping at the 1100x780 floor.
+  $('subDisk').textContent = devs.length + (devs.length === 1 ? ' device' : ' devices')
+    + ' · read ' + fmtBytes(s.disk.read_total) + ' · written ' + fmtBytes(s.disk.write_total);
   diskChart.push([s.disk.read, s.disk.write]);
   $('dskR').textContent = fmtRate(s.disk.read);
   $('dskW').textContent = fmtRate(s.disk.write);
-  // Cumulative bytes since boot — the running totals gnome-system-monitor shows.
-  $('dskRTot').textContent = fmtBytes(s.disk.read_total);
-  $('dskWTot').textContent = fmtBytes(s.disk.write_total);
   // Sorted descending: the device that matters is always the top row, which is
   // also what makes this degrade gracefully with many devices.
   $('devList').innerHTML = devs.map(d =>
