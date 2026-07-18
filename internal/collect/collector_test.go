@@ -33,7 +33,6 @@ func TestCollectorTick(t *testing.T) {
 	writeFile(t, filepath.Join(proc, "meminfo"), "MemTotal: 1000 kB\nMemAvailable: 600 kB\nSwapTotal: 0 kB\nSwapFree: 0 kB\n")
 	writeFile(t, filepath.Join(proc, "net/dev"), "  eth0: 5000 0 0 0 0 0 0 0 2000 0 0 0 0 0 0 0\n")
 	writeFile(t, filepath.Join(proc, "diskstats"), "8 0 sda 0 0 2000 0 0 0 1000 0 0 500 0\n")
-	writeFile(t, filepath.Join(proc, "loadavg"), "0.50 0.40 0.30 1/100 12345\n")
 	writeFile(t, filepath.Join(proc, "uptime"), "3600.00 1000.00\n")
 	writeFile(t, filepath.Join(sys, "block/sda/device/model"), "TEST DISK\n")
 
@@ -56,9 +55,6 @@ func TestCollectorTick(t *testing.T) {
 	if len(snap.Disk.Devs) != 1 || snap.Disk.Devs[0].Name != "sda" {
 		t.Errorf("disk devs = %+v", snap.Disk.Devs)
 	}
-	if snap.Host.Load[0] != 0.5 {
-		t.Errorf("load = %v", snap.Host.Load)
-	}
 }
 
 func TestCollectorTickDeltas(t *testing.T) {
@@ -71,7 +67,6 @@ func TestCollectorTickDeltas(t *testing.T) {
 	writeFile(t, filepath.Join(proc, "meminfo"), "MemTotal: 1000 kB\nMemAvailable: 600 kB\nSwapTotal: 0 kB\nSwapFree: 0 kB\n")
 	writeFile(t, filepath.Join(proc, "net/dev"), "  eth0: 5000 0 0 0 0 0 0 0 2000 0 0 0 0 0 0 0\n")
 	writeFile(t, filepath.Join(proc, "diskstats"), "8 0 sda 0 0 2000 0 0 0 1000 0 0 500 0\n")
-	writeFile(t, filepath.Join(proc, "loadavg"), "0.50 0.40 0.30 1/100 12345\n")
 	writeFile(t, filepath.Join(proc, "uptime"), "3600.00 1000.00\n")
 	writeFile(t, filepath.Join(proc, "1234/stat"), "1234 (testproc) R 1 1 1 0 -1 0 0 0 0 0 100 0 0 0 20 0 1 0 999 123456 2048\n")
 	writeFile(t, filepath.Join(sys, "block/sda/device/model"), "TEST DISK\n")

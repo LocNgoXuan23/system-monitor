@@ -58,8 +58,6 @@ function renderTopbar(s) {
   // than leaving empty slots and stray dividers.
   $('meta').classList.toggle('no-os', !s.host.os && !s.host.kernel);
   $('uptime').textContent = fmtUptime(s.host.uptime);
-  $('load').textContent = s.host.load.map(x => x.toFixed(2)).join(' ');
-  $('clock').textContent = new Date(s.t * 1000).toLocaleTimeString();
 }
 
 function applySnap(s) {

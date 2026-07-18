@@ -3,7 +3,6 @@ package model
 // Snapshot is one full sample broadcast each tick. All byte fields are bytes,
 // rates are bytes/second.
 type Snapshot struct {
-	T    int64      `json:"t"` // unix seconds
 	Host HostInfo   `json:"host"`
 	CPU  CPUInfo    `json:"cpu"`
 	Mem  MemInfo    `json:"mem"`
@@ -15,11 +14,10 @@ type Snapshot struct {
 }
 
 type HostInfo struct {
-	Name   string     `json:"name"`
-	OS     string     `json:"os"`     // distro PRETTY_NAME; "" if unknown
-	Kernel string     `json:"kernel"` // kernel release; "" if unknown
-	Uptime int64      `json:"uptime"`
-	Load   [3]float64 `json:"load"`
+	Name   string `json:"name"`
+	OS     string `json:"os"`     // distro PRETTY_NAME; "" if unknown
+	Kernel string `json:"kernel"` // kernel release; "" if unknown
+	Uptime int64  `json:"uptime"`
 }
 
 type CPUInfo struct {
@@ -75,6 +73,7 @@ type GPUInfo struct {
 }
 
 type FSInfo struct {
+	Dev   string  `json:"dev"` // backing device, e.g. /dev/nvme0n1p2
 	Mount string  `json:"mount"`
 	Used  uint64  `json:"used"`
 	Total uint64  `json:"total"`

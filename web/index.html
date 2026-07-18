@@ -18,10 +18,6 @@
       <span class="sm" id="kernel"></span>
       <i class="d sm"></i>
       <span>up <b id="uptime">—</b></span>
-      <i class="d"></i>
-      <span>load <b id="load">—</b></span>
-      <i class="d"></i>
-      <b id="clock">—</b>
     </div>
     <div id="conn" class="off"><i></i><span>Offline</span></div>
   </header>
@@ -67,9 +63,7 @@
           </div>
           <div class="stats" id="memStats">
             <div class="r"><span class="k"><i class="dot sw-red"></i>Memory</span><span class="v" id="memV">—</span></div>
-            <div class="r dim"><span class="k"><i class="dot hole"></i></span><span class="v" id="memDim">—</span></div>
             <div class="r"><span class="k"><i class="dot sw-green"></i>Swap</span><span class="v" id="swapV">—</span></div>
-            <div class="r dim"><span class="k"><i class="dot hole"></i></span><span class="v" id="swapDim">—</span></div>
             <div class="sep"></div>
             <div class="cap">RAM breakdown</div>
             <div class="stack">
@@ -126,9 +120,7 @@
           </div>
           <div class="stats" id="netStats">
             <div class="r"><span class="k"><i class="dot sw-blue"></i>Receiving ↓</span><span class="v" id="netRx">—</span></div>
-            <div class="r dim"><span class="k"><i class="dot hole"></i>peak 1 min</span><span class="v" id="netRxPeak">—</span></div>
             <div class="r"><span class="k"><i class="dot sw-amber"></i>Sending ↑</span><span class="v" id="netTx">—</span></div>
-            <div class="r dim"><span class="k"><i class="dot hole"></i>peak 1 min</span><span class="v" id="netTxPeak">—</span></div>
             <div class="sep"></div>
             <div class="r"><span class="k"><i class="dot hole"></i>Total received</span><span class="v" id="netRxTot">—</span></div>
             <div class="r"><span class="k"><i class="dot hole"></i>Total sent</span><span class="v" id="netTxTot">—</span></div>
@@ -153,6 +145,8 @@
             <div class="r"><span class="k"><i class="dot sw-cyan"></i>Reading ↓</span><span class="v" id="dskR">—</span></div>
             <div class="r"><span class="k"><i class="dot sw-purple"></i>Writing ↑</span><span class="v" id="dskW">—</span></div>
             <div class="sep"></div>
+            <div class="r"><span class="k"><i class="dot hole"></i>Total read</span><span class="v" id="dskRTot">—</span></div>
+            <div class="r"><span class="k"><i class="dot hole"></i>Total written</span><span class="v" id="dskWTot">—</span></div>
             <div class="cap">Utilisation per device</div>
             <div id="devList"></div>
           </div>
@@ -181,7 +175,7 @@
         </div>
         <div class="tw" data-fit="fs">
           <table class="tbl">
-            <thead><tr><th>Mount</th><th class="n">Used</th><th class="n"></th><th class="n">%</th></tr></thead>
+            <thead><tr><th>Device</th><th class="n">Used</th><th class="n"></th><th class="n">%</th></tr></thead>
             <tbody id="fsBody"></tbody>
           </table>
         </div>

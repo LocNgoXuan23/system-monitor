@@ -28,9 +28,7 @@ function renderMem(s) {
   $('subMem').textContent = fmtBytes(s.mem.total) + ' RAM · ' + fmtBytes(s.mem.swap_total) + ' swap';
   memChart.push([s.mem.pct, s.mem.swap_pct]);
   $('memV').textContent = fmtBytes(s.mem.used) + ' / ' + fmtBytes(s.mem.total);
-  $('memDim').textContent = pct(s.mem.pct) + ' · cache ' + fmtBytes(s.mem.cache);
   $('swapV').textContent = fmtBytes(s.mem.swap_used) + ' / ' + fmtBytes(s.mem.swap_total);
-  $('swapDim').textContent = pct(s.mem.swap_pct) + ' used';
 
   const total = s.mem.total || 1;
   const free = Math.max(0, s.mem.total - s.mem.used - s.mem.cache);
@@ -68,10 +66,6 @@ function renderNet(s) {
   netChart.push([s.net.rx, s.net.tx]);
   $('netRx').textContent = fmtRate(s.net.rx);
   $('netTx').textContent = fmtRate(s.net.tx);
-  // Peaks come from the chart's own rolling window, so RX and TX get their own
-  // number instead of the design's duplicated "Max" row.
-  $('netRxPeak').textContent = fmtRate(peak(netChart.data[0]));
-  $('netTxPeak').textContent = fmtRate(peak(netChart.data[1]));
   $('netRxTot').textContent = fmtBytes(s.net.rx_total);
   $('netTxTot').textContent = fmtBytes(s.net.tx_total);
 }
@@ -82,6 +76,9 @@ function renderDisk(s) {
   diskChart.push([s.disk.read, s.disk.write]);
   $('dskR').textContent = fmtRate(s.disk.read);
   $('dskW').textContent = fmtRate(s.disk.write);
+  // Cumulative bytes since boot — the running totals gnome-system-monitor shows.
+  $('dskRTot').textContent = fmtBytes(s.disk.read_total);
+  $('dskWTot').textContent = fmtBytes(s.disk.write_total);
   // Sorted descending: the device that matters is always the top row, which is
   // also what makes this degrade gracefully with many devices.
   $('devList').innerHTML = devs.map(d =>
@@ -103,8 +100,10 @@ function renderProc(s) {
 function renderFS(s) {
   // Sorted by % used descending — the full mount is the one worth seeing.
   const fs = s.fs.slice().sort((a, b) => b.pct - a.pct);
+  // Show the backing device (/dev/nvme1n1p1, /dev/sda1); the mount point moves
+  // to the row's tooltip so it is still one hover away.
   $('fsBody').innerHTML = fs.map(f =>
-    `<tr><td class="nm" title="${esc(f.mount)}">${esc(f.mount)}</td>` +
+    `<tr><td class="nm" title="${esc(f.mount)}">${esc(f.dev || f.mount)}</td>` +
     `<td class="n">${fmtBytes(f.used)} / ${fmtBytes(f.total)}</td>` +
     `<td class="n"><span class="fsbar"><i class="${f.pct > 90 ? 'hot' : ''}" style="width:${f.pct.toFixed(0)}%"></i></span></td>` +
     `<td class="n">${f.pct.toFixed(0)}%</td></tr>`).join('');

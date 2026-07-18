@@ -51,7 +51,7 @@ func (c *Collector) Tick(now time.Time) model.Snapshot {
 	if !c.primed {
 		dt = 0
 	}
-	snap := model.Snapshot{T: now.Unix(), GPU: c.gpu.Read()}
+	snap := model.Snapshot{GPU: c.gpu.Read()}
 
 	snap.Host = c.host()
 	snap.CPU = c.cpu()
@@ -80,12 +80,6 @@ func (c *Collector) host() model.HostInfo {
 		if f := strings.Fields(string(b)); len(f) > 0 {
 			sec, _ := strconv.ParseFloat(f[0], 64)
 			h.Uptime = int64(sec)
-		}
-	}
-	if b, err := os.ReadFile(filepath.Join(c.cfg.HostProc, "loadavg")); err == nil {
-		f := strings.Fields(string(b))
-		for i := 0; i < 3 && i < len(f); i++ {
-			h.Load[i], _ = strconv.ParseFloat(f[i], 64)
 		}
 	}
 	return h

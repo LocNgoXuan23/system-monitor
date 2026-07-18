@@ -67,6 +67,7 @@ func ReadFS(hostProc, hostRoot string) []model.FSInfo {
 		}
 		used := total - st.Bfree*bs
 		out = append(out, model.FSInfo{
+			Dev:   m.Device,
 			Mount: m.Mountpoint,
 			Used:  used,
 			Total: total,
