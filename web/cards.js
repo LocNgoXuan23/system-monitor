@@ -34,9 +34,13 @@ function renderMem(s) {
   const free = Math.max(0, s.mem.total - s.mem.used - s.mem.cache);
   $('stkUsed').style.width = (s.mem.used / total) * 100 + '%';
   $('stkCache').style.width = (s.mem.cache / total) * 100 + '%';
-  $('keyUsed').textContent = 'used ' + fmtBytes(s.mem.used);
-  $('keyCache').textContent = 'cache ' + fmtBytes(s.mem.cache);
-  $('keyFree').textContent = 'free ' + fmtBytes(free);
+  // Value only — no "used/cache/free" word. The three items with words need
+  // 258px but the stats column is 210px, so the words forced a second line.
+  // Each legend chip is the same colour as its stacked-bar segment right above
+  // (red=used, amber=cache, track=free), which carries the labelling instead.
+  $('keyUsed').textContent = fmtBytes(s.mem.used);
+  $('keyCache').textContent = fmtBytes(s.mem.cache);
+  $('keyFree').textContent = fmtBytes(free);
 }
 
 // Only called when hasGPU; the card is removed from the DOM otherwise.

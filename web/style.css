@@ -163,9 +163,12 @@ body {
 .stack { height: 8px; border-radius: 4px; overflow: hidden; display: flex; background: var(--track); flex: none; }
 .stack i { display: block; height: 100%; }
 .skey { display: flex; flex-wrap: wrap; gap: 2px 10px; font-size: 9px; line-height: 1.15; color: var(--sub); margin-top: 3px; flex: none; }
-/* Keep each "used 15.7 GiB" legend intact — without this the flex items shrink
-   to share the 210px row and the unit wraps mid-value ("15.7 / GiB"). Whole
-   items fit on one line here and wrap as units only if a value grows large. */
+/* Each legend item is a colour chip + a value only (no "used/cache/free" word):
+   the three words pushed the row past the 210px column and dropped an item to a
+   second line, and the chips already map 1:1 onto the stacked-bar segments above.
+   nowrap keeps a value and its unit together ("171 / MiB" never splits);
+   flex-wrap on the parent is the safety net that wraps whole items, not units,
+   should the values ever grow large enough to exceed the row. */
 .skey > span { white-space: nowrap; }
 .skey b { display: inline-block; width: 6px; height: 6px; border-radius: 2px; margin-right: 3px; }
 
