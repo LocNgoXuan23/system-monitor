@@ -116,7 +116,7 @@ function renderGPUProc(s) {
         `<td class="nm" title="${esc(p.name)}">${esc(p.name || '—')}</td>` +
         `<td class="n tag">${esc(p.type)}</td>` +
         `<td class="n">${fmtBytes(p.vram)}</td></tr>`).join('')
-    : '<tr><td class="empty" colspan="4">không có tiến trình dùng GPU</td></tr>';
+    : '<tr><td class="empty" colspan="4">no processes using the GPU</td></tr>';
   $('gpuProcBody').dataset.total = s.gpu_proc.length;
 }
 
@@ -153,7 +153,7 @@ function autoFit() {
     const note = wrap.dataset.note && $(wrap.dataset.note);
     if (note) {
       const hidden = total - tb.rows.length;
-      note.textContent = hidden > 0 ? `+${hidden} ${note.dataset.unit} khác` : '';
+      note.textContent = hidden > 0 ? `+${hidden} more ${note.dataset.unit}` : '';
     }
   });
 }

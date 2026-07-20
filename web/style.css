@@ -68,9 +68,13 @@ body {
   padding: 8px 13px; display: flex; flex-direction: column; min-height: 0; overflow: hidden;
 }
 #colLeft > .card { flex: 1; }
-#card-proc { flex: 3; }
+#card-proc { flex: 2; }
 #card-gpuproc { flex: 1.5; }
-#card-fs { flex: 1; }
+/* Filesystems is sized to its content, not a share of the column: a machine has
+   only a handful of mounts and hiding any of them behind a "+N more" note loses
+   more than the space is worth. It may still shrink (0 1 auto, and autoFit
+   trims) if a host has enough mounts to crowd out the tables above. */
+#card-fs { flex: 0 1 auto; }
 
 /* ---- card header ---- */
 .ch { display: flex; align-items: center; gap: 9px; margin-bottom: 5px; flex: none; }
