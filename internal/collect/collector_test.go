@@ -130,6 +130,9 @@ func TestCollectorTickDeltas(t *testing.T) {
 			if p.CPU != 100 {
 				t.Errorf("proc testproc CPU = %v, want 100", p.CPU)
 			}
+			if p.PID != 1234 {
+				t.Errorf("proc testproc PID = %d, want 1234", p.PID)
+			}
 		}
 	}
 	if !found {

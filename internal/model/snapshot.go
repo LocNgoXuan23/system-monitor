@@ -90,6 +90,7 @@ type FSInfo struct {
 }
 
 type ProcInfo struct {
+	PID  int     `json:"pid"`
 	Name string  `json:"name"`
 	CPU  float64 `json:"cpu"` // percent of one core (can exceed 100)
 	RSS  uint64  `json:"rss"` // bytes

@@ -162,7 +162,7 @@ func (c *Collector) procs(dt float64) []model.ProcInfo {
 			// (djiffies/USER_HZ)/dt*100 simplifies to djiffies/dt when USER_HZ=100.
 			cpu = float64(s.Jiffies-prev) / dt
 		}
-		out = append(out, model.ProcInfo{Name: s.Name, CPU: cpu, RSS: s.RSS})
+		out = append(out, model.ProcInfo{PID: s.PID, Name: s.Name, CPU: cpu, RSS: s.RSS})
 	}
 	c.prevProc = next
 	sort.Slice(out, func(i, j int) bool { return out[i].CPU > out[j].CPU })
