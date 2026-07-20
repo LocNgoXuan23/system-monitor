@@ -13,7 +13,10 @@ import (
 type fakeGPU struct{}
 
 func (fakeGPU) Read() []model.GPUInfo { return []model.GPUInfo{{Name: "test", Util: 10}} }
-func (fakeGPU) Close()                {}
+func (fakeGPU) ReadProcs() []GPUProcSample {
+	return []GPUProcSample{{PID: 42, VRAM: 512 << 20, Compute: true}}
+}
+func (fakeGPU) Close() {}
 
 func writeFile(t *testing.T, p, content string) {
 	t.Helper()
@@ -34,6 +37,7 @@ func TestCollectorTick(t *testing.T) {
 	writeFile(t, filepath.Join(proc, "net/dev"), "  eth0: 5000 0 0 0 0 0 0 0 2000 0 0 0 0 0 0 0\n")
 	writeFile(t, filepath.Join(proc, "diskstats"), "8 0 sda 0 0 2000 0 0 0 1000 0 0 500 0\n")
 	writeFile(t, filepath.Join(proc, "uptime"), "3600.00 1000.00\n")
+	writeFile(t, filepath.Join(proc, "42/comm"), "trainer\n")
 	writeFile(t, filepath.Join(sys, "block/sda/device/model"), "TEST DISK\n")
 
 	cfg := config.Config{HostProc: proc, HostSys: sys, HostRoot: root, ProcTopN: 5, DiskExclude: []string{"loop"}}
@@ -51,6 +55,10 @@ func TestCollectorTick(t *testing.T) {
 	}
 	if len(snap.GPU) != 1 || snap.GPU[0].Name != "test" {
 		t.Errorf("gpu = %+v", snap.GPU)
+	}
+	if len(snap.GPUProc) != 1 || snap.GPUProc[0].Name != "trainer" ||
+		snap.GPUProc[0].Type != "C" || snap.GPUProc[0].VRAM != 512<<20 {
+		t.Errorf("gpu proc = %+v", snap.GPUProc)
 	}
 	if len(snap.Disk.Devs) != 1 || snap.Disk.Devs[0].Name != "sda" {
 		t.Errorf("disk devs = %+v", snap.Disk.Devs)
@@ -121,6 +129,9 @@ func TestCollectorTickDeltas(t *testing.T) {
 			found = true
 			if p.CPU != 100 {
 				t.Errorf("proc testproc CPU = %v, want 100", p.CPU)
+			}
+			if p.PID != 1234 {
+				t.Errorf("proc testproc PID = %d, want 1234", p.PID)
 			}
 		}
 	}

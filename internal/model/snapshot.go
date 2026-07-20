@@ -3,14 +3,15 @@ package model
 // Snapshot is one full sample broadcast each tick. All byte fields are bytes,
 // rates are bytes/second.
 type Snapshot struct {
-	Host HostInfo   `json:"host"`
-	CPU  CPUInfo    `json:"cpu"`
-	Mem  MemInfo    `json:"mem"`
-	Net  NetInfo    `json:"net"`
-	Disk DiskInfo   `json:"disk"`
-	GPU  []GPUInfo  `json:"gpu"`
-	FS   []FSInfo   `json:"fs"`
-	Proc []ProcInfo `json:"proc"`
+	Host    HostInfo      `json:"host"`
+	CPU     CPUInfo       `json:"cpu"`
+	Mem     MemInfo       `json:"mem"`
+	Net     NetInfo       `json:"net"`
+	Disk    DiskInfo      `json:"disk"`
+	GPU     []GPUInfo     `json:"gpu"`
+	FS      []FSInfo      `json:"fs"`
+	Proc    []ProcInfo    `json:"proc"`
+	GPUProc []GPUProcInfo `json:"gpu_proc"`
 }
 
 type HostInfo struct {
@@ -72,6 +73,14 @@ type GPUInfo struct {
 	Fan      int    `json:"fan"`    // percent, -1 if N/A
 }
 
+// GPUProcInfo is one process holding VRAM, merged across every GPU it runs on.
+type GPUProcInfo struct {
+	PID  int    `json:"pid"`
+	Name string `json:"name"`
+	Type string `json:"type"` // "C" (compute), "G" (graphics), or "C+G"
+	VRAM uint64 `json:"vram"` // bytes
+}
+
 type FSInfo struct {
 	Dev   string  `json:"dev"` // backing device, e.g. /dev/nvme0n1p2
 	Mount string  `json:"mount"`
@@ -81,6 +90,7 @@ type FSInfo struct {
 }
 
 type ProcInfo struct {
+	PID  int     `json:"pid"`
 	Name string  `json:"name"`
 	CPU  float64 `json:"cpu"` // percent of one core (can exceed 100)
 	RSS  uint64  `json:"rss"` // bytes

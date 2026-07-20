@@ -24,7 +24,7 @@ run-desktop: desktop
 
 ## dev: run the web head locally on native paths for fast browser UI iteration
 dev:
-	PORT=$(DEV_PORT) HOST_PROC=/proc HOST_SYS=/sys HOST_ROOT= $(GO) run ./cmd/web
+	PORT=$(DEV_PORT) HOST_PROC=/proc HOST_SYS=/sys HOST_ROOT=/ $(GO) run ./cmd/web
 
 ## test: run the full test suite
 test:

@@ -23,9 +23,14 @@ per-GPU grouping when several GPUs are present.
 Chosen from side-by-side browser mockups (option B, then variant E for column
 order). Mockups live in `.superpowers/brainstorm/*/content/`.
 
-Right column flex ratios: `#card-proc: 3` · `#card-gpuproc: 1.5` · `#card-fs: 1`.
-At the 1100x780 floor that is roughly 13 / 7 / 3 rows; `autoFit()` trims from the
-bottom as it already does.
+Right column flex ratios: `#card-proc: 2` · `#card-gpuproc: 1.5` · `#card-fs: 0 1 auto`.
+Filesystems is sized to its content rather than given a share of the column — a
+machine has only a handful of mounts, and hiding any behind a "+N more" note costs
+more than the space it frees. It can still shrink if a host has enough mounts to
+crowd out the tables above. At the 1100x780 floor that is 10 / 6 rows plus every
+mount; `autoFit()` trims the two tables above from the bottom as it already does.
+
+All UI copy is English (see CLAUDE.md).
 
 Both tables put PID first, as a fixed 52px left column in `--sub` colour with
 tabular numerals, so the PIDs line up and can be read off for `kill`:
@@ -50,6 +55,7 @@ and the collector resolves names:
 
 ```go
 type GPUProcSample struct {
+    GPU      int  // device index
     PID      int
     VRAM     uint64
     Compute  bool // from DeviceGetComputeRunningProcesses
@@ -64,6 +70,12 @@ Collector responsibilities:
 
 - **Merge by PID.** A PID in both lists becomes `Type: "C+G"`. A PID on several
   GPUs has its VRAM summed — the table is one flat list across all GPUs.
+- **Do not double-count context types.** A process holding both a compute and a
+  graphics context is returned by *both* calls, each reporting the same device
+  memory. Summing those showed 291 MiB where `nvidia-smi` showed 145. VRAM
+  therefore sums across devices only; within one device the larger of the two
+  reports wins (they differ solely by when each call sampled). This is why the
+  sample carries a device index.
 - **Guard `VALUE_NOT_AVAILABLE`.** NVML returns `0xFFFFFFFFFFFFFFFF` for
   `UsedGpuMemory` in some configurations (notably MIG). Treat it as 0 rather
   than rendering 16 EiB.
@@ -122,8 +134,8 @@ mechanism, no table name baked into the function.
 | Condition | Result |
 |---|---|
 | No GPU / NVML unavailable | Card removed from the DOM, as `#card-gpu` already is |
-| GPU present, no processes | Card stays, table empty, note reads "không có tiến trình dùng GPU" |
-| Rows trimmed to fit | Note reads "+N tiến trình khác" |
+| GPU present, no processes | Card stays, table shows a single "no processes using the GPU" row |
+| Rows trimmed to fit | Note reads "+N more processes" |
 
 ## Docker
 

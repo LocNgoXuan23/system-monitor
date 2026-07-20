@@ -96,9 +96,28 @@ function renderProc(s) {
   // Already sorted by CPU descending server-side. No per-process icons: they
   // carried no information the name doesn't.
   $('procBody').innerHTML = s.proc.map(p =>
-    `<tr><td class="nm" title="${esc(p.name)}">${esc(p.name)}</td>` +
+    `<tr><td class="pidl">${p.pid}</td>` +
+    `<td class="nm" title="${esc(p.name)}">${esc(p.name)}</td>` +
     `<td class="n">${p.cpu.toFixed(0)}%</td>` +
     `<td class="n">${fmtBytes(p.rss)}</td></tr>`).join('');
+}
+
+// Only called when hasGPU; the card is removed from the DOM otherwise. Rows are
+// already merged across GPUs and sorted by VRAM descending server-side.
+function renderGPUProc(s) {
+  const used = s.gpu.reduce((a, g) => a + g.mem_used, 0);
+  const total = s.gpu.reduce((a, g) => a + g.mem_total, 0);
+  $('subGpuProc').textContent = 'by VRAM · ' + fmtBytes(used) + ' / ' + fmtBytes(total);
+  // A process that exits mid-tick still holds the VRAM NVML reported, so the
+  // row stays and only its name falls back to a dash.
+  $('gpuProcBody').innerHTML = s.gpu_proc.length
+    ? s.gpu_proc.map(p =>
+        `<tr><td class="pidl">${p.pid}</td>` +
+        `<td class="nm" title="${esc(p.name)}">${esc(p.name || '—')}</td>` +
+        `<td class="n tag">${esc(p.type)}</td>` +
+        `<td class="n">${fmtBytes(p.vram)}</td></tr>`).join('')
+    : '<tr><td class="empty" colspan="4">no processes using the GPU</td></tr>';
+  $('gpuProcBody').dataset.total = s.gpu_proc.length;
 }
 
 function renderFS(s) {
@@ -111,6 +130,7 @@ function renderFS(s) {
     `<td class="n">${fmtBytes(f.used)} / ${fmtBytes(f.total)}</td>` +
     `<td class="n"><span class="fsbar"><i class="${f.pct > 90 ? 'hot' : ''}" style="width:${f.pct.toFixed(0)}%"></i></span></td>` +
     `<td class="n">${f.pct.toFixed(0)}%</td></tr>`).join('');
+  $('fsBody').dataset.total = fs.length;
 }
 
 // Trim rows from the bottom until each table fits its wrapper, so the right
@@ -121,15 +141,19 @@ function autoFit() {
   document.querySelectorAll('[data-fit]').forEach(wrap => {
     const tb = wrap.querySelector('tbody');
     if (!tb) return;
-    const total = tb.rows.length;
+    // The renderer records how many rows the data had. tb.rows is only what
+    // survived the last trim, and autoFit also runs on resize with no re-render
+    // in between — reading it here would report "nothing hidden" and wipe the note.
+    const total = tb.dataset.total !== undefined ? +tb.dataset.total : tb.rows.length;
     while (tb.rows.length > 1 && wrap.scrollHeight > wrap.clientHeight) {
       tb.deleteRow(tb.rows.length - 1);
     }
-    if (wrap.dataset.fit === 'fs') {
+    // Never truncate silently. A .note reserves its height even when empty, so
+    // writing into it cannot re-overflow the table just trimmed to fit.
+    const note = wrap.dataset.note && $(wrap.dataset.note);
+    if (note) {
       const hidden = total - tb.rows.length;
-      // Never truncate silently. #fsNote reserves its height even when empty,
-      // so writing into it cannot re-overflow the table just trimmed to fit.
-      $('fsNote').textContent = hidden > 0 ? `+${hidden} mount khác` : '';
+      note.textContent = hidden > 0 ? `+${hidden} more ${note.dataset.unit}` : '';
     }
   });
 }

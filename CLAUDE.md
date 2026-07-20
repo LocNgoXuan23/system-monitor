@@ -15,6 +15,15 @@ preference*, they must see it before answering. Text-only UI options are a defec
 The terminal stays correct for genuinely non-visual questions: scope, requirements,
 data modeling, tradeoff discussion, technical approach.
 
+## UI copy is English-only
+
+Every string the app renders — labels, headers, card titles, subtitles, empty
+states, truncation notes, tooltips, error text — is written in English. This holds
+regardless of the language the request was made in; a Vietnamese conversation still
+produces English UI copy.
+
+Comments, commit messages, specs and plans are unaffected by this rule.
+
 ## Build
 
 `go` is not on the default PATH. Export it and enable CGO (NVML + WebKitGTK need it):

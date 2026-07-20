@@ -1,6 +1,10 @@
 package collect
 
-import "testing"
+import (
+	"os"
+	"path/filepath"
+	"testing"
+)
 
 func TestParseProcStat(t *testing.T) {
 	// comm contains spaces and a ")" to exercise last-paren splitting.
@@ -20,5 +24,23 @@ func TestParseProcStat(t *testing.T) {
 	}
 	if s.RSS != 2048*4096 {
 		t.Errorf("RSS=%d, want %d", s.RSS, 2048*4096)
+	}
+}
+
+func TestReadProcName(t *testing.T) {
+	root := t.TempDir()
+	if err := os.MkdirAll(filepath.Join(root, "77"), 0755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(root, "77", "comm"), []byte("python3\n"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	if got := ReadProcName(root, 77); got != "python3" {
+		t.Errorf("name = %q, want %q", got, "python3")
+	}
+	// A process that exited between the NVML sample and this read is a normal
+	// race, not an error: the caller still shows the row it sampled.
+	if got := ReadProcName(root, 78); got != "" {
+		t.Errorf("name = %q, want empty", got)
 	}
 }

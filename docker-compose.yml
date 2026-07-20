@@ -6,6 +6,9 @@ services:
     restart: unless-stopped
     runtime: nvidia
     network_mode: host
+    # Without a shared PID namespace NVML enumerates no GPU processes — the
+    # familiar "no running processes found" from nvidia-smi inside Docker.
+    pid: host
     environment:
       - PORT=${PORT:-8090}
       - INTERVAL_MS=1000
