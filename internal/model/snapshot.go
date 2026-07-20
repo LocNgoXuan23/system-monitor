@@ -72,6 +72,14 @@ type GPUInfo struct {
 	Fan      int    `json:"fan"`    // percent, -1 if N/A
 }
 
+// GPUProcInfo is one process holding VRAM, merged across every GPU it runs on.
+type GPUProcInfo struct {
+	PID  int    `json:"pid"`
+	Name string `json:"name"`
+	Type string `json:"type"` // "C" (compute), "G" (graphics), or "C+G"
+	VRAM uint64 `json:"vram"` // bytes
+}
+
 type FSInfo struct {
 	Dev   string  `json:"dev"` // backing device, e.g. /dev/nvme0n1p2
 	Mount string  `json:"mount"`
