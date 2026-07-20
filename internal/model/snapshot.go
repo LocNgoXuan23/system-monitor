@@ -3,14 +3,15 @@ package model
 // Snapshot is one full sample broadcast each tick. All byte fields are bytes,
 // rates are bytes/second.
 type Snapshot struct {
-	Host HostInfo   `json:"host"`
-	CPU  CPUInfo    `json:"cpu"`
-	Mem  MemInfo    `json:"mem"`
-	Net  NetInfo    `json:"net"`
-	Disk DiskInfo   `json:"disk"`
-	GPU  []GPUInfo  `json:"gpu"`
-	FS   []FSInfo   `json:"fs"`
-	Proc []ProcInfo `json:"proc"`
+	Host    HostInfo      `json:"host"`
+	CPU     CPUInfo       `json:"cpu"`
+	Mem     MemInfo       `json:"mem"`
+	Net     NetInfo       `json:"net"`
+	Disk    DiskInfo      `json:"disk"`
+	GPU     []GPUInfo     `json:"gpu"`
+	FS      []FSInfo      `json:"fs"`
+	Proc    []ProcInfo    `json:"proc"`
+	GPUProc []GPUProcInfo `json:"gpu_proc"`
 }
 
 type HostInfo struct {

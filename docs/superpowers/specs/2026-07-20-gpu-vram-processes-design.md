@@ -50,6 +50,7 @@ and the collector resolves names:
 
 ```go
 type GPUProcSample struct {
+    GPU      int  // device index
     PID      int
     VRAM     uint64
     Compute  bool // from DeviceGetComputeRunningProcesses
@@ -64,6 +65,12 @@ Collector responsibilities:
 
 - **Merge by PID.** A PID in both lists becomes `Type: "C+G"`. A PID on several
   GPUs has its VRAM summed — the table is one flat list across all GPUs.
+- **Do not double-count context types.** A process holding both a compute and a
+  graphics context is returned by *both* calls, each reporting the same device
+  memory. Summing those showed 291 MiB where `nvidia-smi` showed 145. VRAM
+  therefore sums across devices only; within one device the larger of the two
+  reports wins (they differ solely by when each call sampled). This is why the
+  sample carries a device index.
 - **Guard `VALUE_NOT_AVAILABLE`.** NVML returns `0xFFFFFFFFFFFFFFFF` for
   `UsedGpuMemory` in some configurations (notably MIG). Treat it as 0 rather
   than rendering 16 EiB.

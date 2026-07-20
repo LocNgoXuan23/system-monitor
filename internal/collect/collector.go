@@ -64,6 +64,7 @@ func (c *Collector) Tick(now time.Time) model.Snapshot {
 	snap.Disk = c.disk(dt)
 	snap.FS = ReadFS(c.cfg.HostProc, c.cfg.HostRoot)
 	snap.Proc = c.procs(dt)
+	snap.GPUProc = c.gpuProcs()
 
 	c.prevTime = now
 	c.primed = true
@@ -167,6 +168,20 @@ func (c *Collector) procs(dt float64) []model.ProcInfo {
 	sort.Slice(out, func(i, j int) bool { return out[i].CPU > out[j].CPU })
 	if len(out) > c.cfg.ProcTopN {
 		out = out[:c.cfg.ProcTopN]
+	}
+	return out
+}
+
+// gpuProcs merges NVML's per-device samples, trims to the same cap as the
+// process table, then resolves names — in that order, so a busy GPU does not
+// cost one procfs read per dropped row.
+func (c *Collector) gpuProcs() []model.GPUProcInfo {
+	out := MergeGPUProcs(c.gpu.ReadProcs())
+	if len(out) > c.cfg.ProcTopN {
+		out = out[:c.cfg.ProcTopN]
+	}
+	for i := range out {
+		out[i].Name = ReadProcName(c.cfg.HostProc, out[i].PID)
 	}
 	return out
 }

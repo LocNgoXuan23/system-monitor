@@ -38,6 +38,16 @@ func ParseProcStat(pid int, content string) (ProcSample, bool) {
 	return ProcSample{PID: pid, Name: name, Jiffies: utime + stime, RSS: rss * pageSize}, true
 }
 
+// ReadProcName reads a process's comm name. Returns "" when the process has
+// exited between the caller sampling its PID and this read.
+func ReadProcName(hostProc string, pid int) string {
+	b, err := os.ReadFile(filepath.Join(hostProc, strconv.Itoa(pid), "comm"))
+	if err != nil {
+		return ""
+	}
+	return strings.TrimSpace(string(b))
+}
+
 // ScanProcs reads every /host/proc/[pid]/stat. Host PIDs are visible because
 // /host/proc is a bind mount of the host procfs.
 func ScanProcs(hostProc string) []ProcSample {

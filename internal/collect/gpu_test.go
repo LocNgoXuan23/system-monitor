@@ -4,10 +4,10 @@ import "testing"
 
 func TestMergeGPUProcs(t *testing.T) {
 	in := []GPUProcSample{
-		{PID: 100, VRAM: 200 << 20, Graphics: true},
-		{PID: 200, VRAM: 3 << 30, Compute: true},
-		{PID: 100, VRAM: 100 << 20, Compute: true}, // same PID, other context type
-		{PID: 200, VRAM: 1 << 30, Compute: true},   // same PID, second GPU
+		{GPU: 0, PID: 100, VRAM: 200 << 20, Graphics: true},
+		{GPU: 0, PID: 200, VRAM: 3 << 30, Compute: true},
+		{GPU: 0, PID: 100, VRAM: 190 << 20, Compute: true}, // same memory, reported again by the other call
+		{GPU: 1, PID: 200, VRAM: 1 << 30, Compute: true},   // second GPU: genuinely more memory
 	}
 	got := MergeGPUProcs(in)
 	if len(got) != 2 {
@@ -17,9 +17,21 @@ func TestMergeGPUProcs(t *testing.T) {
 	if got[0].PID != 200 || got[0].VRAM != 4<<30 || got[0].Type != "C" {
 		t.Errorf("got[0]=%+v", got[0])
 	}
-	// 100 appears in both lists, so it holds both context types.
-	if got[1].PID != 100 || got[1].VRAM != 300<<20 || got[1].Type != "C+G" {
+	// 100 is in both lists on one GPU: both context types, one allocation.
+	if got[1].PID != 100 || got[1].VRAM != 200<<20 || got[1].Type != "C+G" {
 		t.Errorf("got[1]=%+v", got[1])
+	}
+}
+
+func TestMergeGPUProcsNoDoubleCountAcrossContextTypes(t *testing.T) {
+	// Regression: a C+G process is listed by both NVML calls, each reporting the
+	// same device memory. Summing them showed 291 MiB where nvidia-smi showed 145.
+	got := MergeGPUProcs([]GPUProcSample{
+		{GPU: 0, PID: 5, VRAM: 145 << 20, Compute: true},
+		{GPU: 0, PID: 5, VRAM: 146 << 20, Graphics: true},
+	})
+	if len(got) != 1 || got[0].VRAM != 146<<20 || got[0].Type != "C+G" {
+		t.Errorf("got=%+v, want one C+G row of 146 MiB", got)
 	}
 }
 

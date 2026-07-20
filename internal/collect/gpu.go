@@ -9,13 +9,15 @@ import (
 
 type GPUReader interface {
 	Read() []model.GPUInfo
+	ReadProcs() []GPUProcSample
 	Close()
 }
 
 type nopGPU struct{}
 
-func (nopGPU) Read() []model.GPUInfo { return nil }
-func (nopGPU) Close()                {}
+func (nopGPU) Read() []model.GPUInfo      { return nil }
+func (nopGPU) ReadProcs() []GPUProcSample { return nil }
+func (nopGPU) Close()                     {}
 
 type nvmlGPU struct{}
 
@@ -69,10 +71,39 @@ func (g *nvmlGPU) Read() []model.GPUInfo {
 	return out
 }
 
+// ReadProcs lists every process holding VRAM on every device. NVML splits these
+// across two calls by context type, and a process using both appears in both —
+// MergeGPUProcs folds that back together.
+func (g *nvmlGPU) ReadProcs() []GPUProcSample {
+	count, ret := nvml.DeviceGetCount()
+	if ret != nvml.SUCCESS {
+		return nil
+	}
+	var out []GPUProcSample
+	for i := 0; i < count; i++ {
+		d, ret := nvml.DeviceGetHandleByIndex(i)
+		if ret != nvml.SUCCESS {
+			continue
+		}
+		if ps, ret := d.GetComputeRunningProcesses(); ret == nvml.SUCCESS {
+			for _, p := range ps {
+				out = append(out, GPUProcSample{GPU: i, PID: int(p.Pid), VRAM: p.UsedGpuMemory, Compute: true})
+			}
+		}
+		if ps, ret := d.GetGraphicsRunningProcesses(); ret == nvml.SUCCESS {
+			for _, p := range ps {
+				out = append(out, GPUProcSample{GPU: i, PID: int(p.Pid), VRAM: p.UsedGpuMemory, Graphics: true})
+			}
+		}
+	}
+	return out
+}
+
 // GPUProcSample is one process holding VRAM on one GPU, as NVML reports it: a
-// PID, a byte count, and which context type it was listed under. NVML has no
-// process names, so the collector resolves those from procfs.
+// device index, a PID, a byte count, and which context type it was listed
+// under. NVML has no process names, so the collector resolves those from procfs.
 type GPUProcSample struct {
+	GPU      int
 	PID      int
 	VRAM     uint64
 	Compute  bool
@@ -84,15 +115,23 @@ type GPUProcSample struct {
 // attributed (notably MIG).
 const vramUnavailable = ^uint64(0)
 
-// MergeGPUProcs folds per-device samples into one row per PID: VRAM sums across
-// devices, and a PID listed under both context types becomes "C+G". Sorted by
-// VRAM descending, ties by PID ascending so row order is stable between ticks.
+// MergeGPUProcs folds per-device samples into one row per PID, and a PID listed
+// under both context types becomes "C+G". Sorted by VRAM descending, ties by
+// PID ascending so row order is stable between ticks.
+//
+// VRAM sums across devices but NOT across context types: a process holding both
+// a compute and a graphics context appears in both NVML lists reporting the
+// same device memory twice, so adding them would double what nvidia-smi shows.
+// Per device we take the largest report; the two differ only by the moment each
+// call sampled.
 func MergeGPUProcs(samples []GPUProcSample) []model.GPUProcInfo {
 	type acc struct {
 		vram              uint64
 		compute, graphics bool
 	}
+	type devKey struct{ gpu, pid int }
 	byPID := map[int]*acc{}
+	perDev := map[devKey]uint64{}
 	var order []int
 	for _, s := range samples {
 		a, ok := byPID[s.PID]
@@ -101,11 +140,17 @@ func MergeGPUProcs(samples []GPUProcSample) []model.GPUProcInfo {
 			byPID[s.PID] = a
 			order = append(order, s.PID)
 		}
-		if s.VRAM != vramUnavailable {
-			a.vram += s.VRAM
-		}
 		a.compute = a.compute || s.Compute
 		a.graphics = a.graphics || s.Graphics
+		if s.VRAM == vramUnavailable {
+			continue
+		}
+		if k := (devKey{s.GPU, s.PID}); s.VRAM > perDev[k] {
+			perDev[k] = s.VRAM
+		}
+	}
+	for k, vram := range perDev {
+		byPID[k.pid].vram += vram
 	}
 	out := make([]model.GPUProcInfo, 0, len(order))
 	for _, pid := range order {
