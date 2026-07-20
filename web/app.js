@@ -15,9 +15,11 @@ function setRateGutter(id, ymax) {
 function initCharts(s) {
   const cores = (s.cpu.cores || []).length;
   hasGPU = !!(s.gpu && s.gpu.length);
-  // No GPU: drop the card entirely rather than render one full of dashes. The
-  // remaining four cards take its space via flex:1.
-  if (!hasGPU) { const c = $('card-gpu'); if (c) c.remove(); }
+  // No GPU: drop both GPU cards entirely rather than render tables full of
+  // dashes. The remaining cards take their space via flex.
+  if (!hasGPU) {
+    ['card-gpu', 'card-gpuproc'].forEach(id => { const c = $(id); if (c) c.remove(); });
+  }
 
   cpuChart = new Chart($('cpuChart'), {
     series: Array.from({ length: cores }, (_, i) =>
@@ -69,10 +71,11 @@ function applySnap(s) {
   s.gpu = s.gpu || [];
   s.fs = s.fs || [];
   s.proc = s.proc || [];
+  s.gpu_proc = s.gpu_proc || [];
   if (!cpuChart) initCharts(s);
   renderCPU(s);
   renderMem(s);
-  if (hasGPU && s.gpu.length) renderGPU(s);
+  if (hasGPU && s.gpu.length) { renderGPU(s); renderGPUProc(s); }
   renderNet(s);
   renderDisk(s);
   renderProc(s);

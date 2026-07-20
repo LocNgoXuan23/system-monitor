@@ -69,6 +69,7 @@ body {
 }
 #colLeft > .card { flex: 1; }
 #card-proc { flex: 3; }
+#card-gpuproc { flex: 1.5; }
 #card-fs { flex: 1; }
 
 /* ---- card header ---- */
@@ -188,6 +189,19 @@ body {
    from touching. */
 .tbl .n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; padding-left: 12px; }
 .tbl td.nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 0; width: 100%; }
+/* PID leads both right-column tables as a fixed left column, so the numbers
+   line up down the page and can be read off for kill(1). --sub keeps them from
+   competing with the process name beside them. */
+.tbl .pidl {
+  width: 52px; padding-right: 10px; text-align: left; color: var(--sub);
+  font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+/* NVML's context-type marker: C, G, or C+G. Sized like a .cap so it reads as a
+   label rather than a value. */
+.tbl .tag { font-size: 8.5px; font-weight: 700; color: var(--sub); }
+/* The "no GPU process" state is a row, not a note: autoFit() rewrites notes on
+   every tick and would wipe a message written there. */
+.tbl td.empty { color: var(--sub); font-size: 10.5px; border-bottom: 0; }
 /* Always present, even when empty, so appending the note cannot re-overflow
    the table that autoFit() just trimmed to fit. */
 .note { font-size: 9.5px; color: var(--sub); height: 14px; flex: none; padding-top: 2px; }

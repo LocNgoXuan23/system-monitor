@@ -160,10 +160,24 @@
         </div>
         <div class="tw" data-fit="proc">
           <table class="tbl">
-            <thead><tr><th>Process</th><th class="n">CPU</th><th class="n">Memory</th></tr></thead>
+            <thead><tr><th class="pidl">PID</th><th>Process</th><th class="n">CPU</th><th class="n">Mem</th></tr></thead>
             <tbody id="procBody"></tbody>
           </table>
         </div>
+      </section>
+
+      <section class="card" id="card-gpuproc">
+        <div class="ch">
+          <div class="cico i-green">◫</div>
+          <div><div class="ct">GPU Processes</div><div class="cs" id="subGpuProc">by VRAM</div></div>
+        </div>
+        <div class="tw" data-fit="gpuproc" data-note="gpuProcNote">
+          <table class="tbl">
+            <thead><tr><th class="pidl">PID</th><th>Process</th><th class="n">Type</th><th class="n">VRAM</th></tr></thead>
+            <tbody id="gpuProcBody"></tbody>
+          </table>
+        </div>
+        <div class="note" id="gpuProcNote" data-unit="tiến trình"></div>
       </section>
 
       <section class="card" id="card-fs">
@@ -171,13 +185,13 @@
           <div class="cico i-plain">◰</div>
           <div><div class="ct">Filesystems</div><div class="cs" id="subFs">by usage</div></div>
         </div>
-        <div class="tw" data-fit="fs">
+        <div class="tw" data-fit="fs" data-note="fsNote">
           <table class="tbl">
             <thead><tr><th>Device</th><th class="n">Used</th><th class="n"></th><th class="n">%</th></tr></thead>
             <tbody id="fsBody"></tbody>
           </table>
         </div>
-        <div class="note" id="fsNote"></div>
+        <div class="note" id="fsNote" data-unit="mount"></div>
       </section>
     </div>
   </main>
